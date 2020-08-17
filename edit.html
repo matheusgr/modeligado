@@ -1,0 +1,49 @@
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <script src="https://cdn.jsdelivr.net/npm/gojs@2.1/release/go.js"></script>
+    <script src="gojs.js"></script>
+    <script type="module" src="parser.js"></script>
+    <script type="module">
+        import {parse, exampleData} from './parser.js'
+
+        window.example = function() {
+            document.getElementById("text").textContent = exampleData()
+            window.convert()
+        }
+
+        window.convert = function convert(data, e) {
+            let text = document.getElementById("text").textContent
+            let result = parse(text)
+            let nodeName = []
+            let linkData = []
+            for (let node of result) {
+                nodeName.push(node.context)
+                linkData.push(...node.relations)
+            }
+            console.log(linkData)
+            create(myDiagram, nodeName, linkData)
+        }
+
+        window.initDiv = function() {
+            myDiagram = init()
+        }
+    </script>
+</head>
+
+<body onload="initDiv()">
+    <div style="width:100%">
+        <button onClick="example()">Example</button>
+        <button onClick="convert()">UML</button>
+    </div>
+    <div style="border: solid 1px black; float:left; width:50%; height:100%">
+        <textarea id="text" style="width:100%; height:100%">
+
+        </textarea>
+    </div>
+    
+    <div id="myDiagramDiv" style="border: solid 1px black; float:right; width:49%; height:100%"></div>
+</body>
+
+</html>

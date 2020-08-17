@@ -1,0 +1,26 @@
+# diagrama
+
+Aluno
+extends Pessoa
+implements Nomeavel, Identificavel
+---
+- turmas: List<Turma>
+- nome: str
+- nasc: int
+---
++ Aluno(nome: str)
++ Aluno(nome: str, nasc: int)
++ setNome(nome: str): void
+---
+
+Pessoa
+---
+- cpf: str
+---
+---
+
+Turma
+---
+- cod: int
+---
+---
