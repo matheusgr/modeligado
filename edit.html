@@ -5,9 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="styles.css">
     <script src="https://cdn.jsdelivr.net/npm/gojs@2.1/release/go.js"></script>
+
+    <script>
+        TogetherJSConfig_hubBase = "https://togetherjs-hub.glitch.me/"
+    </script>
+
+    <script src="https://togetherjs.com/togetherjs-min.js"></script>
     <script src="gojs.js"></script>
     <script type="module" src="parser.js"></script>
     <script type="module" src="example_data.js"></script>
+
     <script type="module">
         import {Parser} from './parser.js'
         import {exampleData} from './example_data.js'
@@ -51,6 +58,11 @@
             <div class="flex-row">
                 <button onClick="example()">Example</button>
                 <button onClick="convert()">UML (F2)</button>
+                <button id="start-togetherjs" type="button"
+                    onclick="TogetherJS(this); return false"
+                    data-end-togetherjs-html="End TogetherJS">
+                    Start TogetherJS
+                </button>
             </div>
             <div class="flex-row-content">
                 <textarea id="text" class="flex-column col-1"></textarea>
