@@ -5,8 +5,10 @@
     <script src="https://cdn.jsdelivr.net/npm/gojs@2.1/release/go.js"></script>
     <script src="gojs.js"></script>
     <script type="module" src="parser.js"></script>
+    <script type="module" src="example_data.js"></script>
     <script type="module">
-        import {Parser, exampleData} from './parser.js'
+        import {Parser} from './parser.js'
+        import {exampleData} from './example_data.js'
 
         window.example = function() {
             document.getElementById("text").value = exampleData()

@@ -1,10 +1,4 @@
 import {Parser} from './parser.js'
-import fs from 'fs'
+import {exampleData} from './example_data.js'
 
-
-fs.readFile('diagram.txt', 'utf8', function (err, data) {
-    if (err) {
-        return console.log(err)
-    }
-    console.log(new Parser().parse(data))
-});
+console.log(new Parser().parse(exampleData()))
