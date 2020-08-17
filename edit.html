@@ -6,7 +6,7 @@
     <script src="gojs.js"></script>
     <script type="module" src="parser.js"></script>
     <script type="module">
-        import {parse, exampleData} from './parser.js'
+        import {Parser, exampleData} from './parser.js'
 
         window.example = function() {
             document.getElementById("text").value = exampleData()
@@ -23,7 +23,7 @@
         window.convert = function convert(data, e) {
             let text = document.getElementById("text").value
             console.log(text)
-            let result = parse(text)
+            let result = new Parser().parse(text)
             let nodeName = []
             let linkData = []
             for (let node of result) {

@@ -1,11 +1,22 @@
-class StateError extends Error {
-    constructor(expectedState, ...params) {
+class ParseError extends Error {
+    constructor(line, ...params) {
+        super(...params)
+        if (Error.captureStackTrace) {
+            Error.captureStackTrace(this, ParseError)
+        }
+        this.message = "Line " + line + ": " + this.message
+        this.name = 'ParseError'
+        this.date = new Date()
+    }
+}
+
+class StateError extends ParseError {
+    constructor(...params) {
         super(...params)
         if (Error.captureStackTrace) {
             Error.captureStackTrace(this, StateError)
         }
         this.name = 'StateError'
-        this.expectedState = expectedState
         this.date = new Date()
     }
 }
@@ -14,18 +25,23 @@ class State {
 
     constructor() {
         this.state = "ROOT"
+        this.lineNumber = 0
+    }
+
+    setLine(lineNumber) {
+        this.lineNumber = lineNumber
     }
 
     // --- CHECKS ---
     _check(expectedState) {
         if (this.state !== expectedState) {
-            throw new StateError(expectedState)
+            throw new StateError(this.lineNumber, "Expecting internal state '" + expectedState + "'.")
         }
     }
 
     _notExecuted(state, property) {
         if (this.context && this.context.hasOwnProperty(property)) {
-            throw new StateError(state)
+            throw new StateError(this.lineNumber, "State '" + state + "' was already executed.")
         }
     }
 
@@ -89,31 +105,33 @@ class State {
         this.state = "CLASS"
     }
 
-    // --- STATE CHECK ---
-    isRoot() {
-        return this.state === "ROOT"
-    }
-
-    isClass() {
-        return this.state === "CLASS"
-    }
-
-    isMethods() {
-        return this.state === "METHOD"
-    }
-
-    isAttrs() {
-        return this.state === "ATTR"
-    }
-
-
 }
+
+// Check current state on state
+['Root', 'Class', 'Method', 'Attr'].forEach((method) => {
+    State.prototype["is" + method] = function() {
+      return this.state === method.toUpperCase()
+    }
+})
+
+class ExtractError extends ParseError {
+    constructor(...params) {
+        super(...params)
+        if (Error.captureStackTrace) {
+            Error.captureStackTrace(this, ExtractError)
+        }
+        this.name = 'ExtractError'
+        this.date = new Date()
+    }
+}
+
 
 class Extractor {
 
     constructor() {
+        this.lineNumber = 0
         this.conv = {'-' : 'private', '+': 'public', '#': 'protected'}
-        // name and if it is inverted
+        // name and if it relation is inversed (from <-> to)
         this.relations = {"extends": ["generalization", false],
                                       "implements": ["generalizationInterface", false],
                                       "association": ["association", false],
@@ -122,15 +140,36 @@ class Extractor {
                             }
     }
 
+    setLine(lineNumber) {
+        this.lineNumber = lineNumber
+    }
+
+    _convertVisibility(vis) {
+        if (!this.conv.hasOwnProperty(vis)) {
+            throw new ExtractError(this.lineNumber, "Unknow visibility: " + vis)
+        }
+        return this.conv[vis]
+    }
+
+    _prepareRelation(relation, types) {
+        if (!this.relations.hasOwnProperty(relation)) {
+            throw new ExtractError(this.lineNumber, "Unknow relation: " + relation)
+        }
+        return {"relation": this.relations[relation][0], "types": types, "inverse": this.relations[relation][1]}        
+    }
+
     extractRelation(line) {
-        let relation = line.split(" ")[0]
+        let relation = line.split(" ")[0].trim()
         let types = line.substring(relation.length + 1, line.length).split(',').map(x => x.trim())
-        return {"relation": this.relations[relation][0], "types": types, "inverse": this.relations[relation][1]}
+        return this._prepareRelation(relation, types)
     }
 
     extractAttr(line) {
         const split = line.split(" ").map(x => x.trim())
-        const visibility = this.conv[split[0]]
+        if (split.length != 3) {
+            throw new ExtractError(this.lineNumber, "Unknow attr format " + line)
+        }
+        const visibility = this._convertVisibility(split[0])
         const name = split[1].substring(0, split[1].length - 1)
         const type = split[2]
         return {'name': name, 'type': type, 'visibility': visibility}
@@ -138,11 +177,16 @@ class Extractor {
 
     extractParameters(params) {
         let resultParams = []
-        for (let param of params.split(',')) {
-            param = param.trim()
+        for (let param of params.split(',').map(x => x.trim())) {
             let aval = param.split(':').map(x => x.trim())
+            if (aval.length != 2) {
+                throw new ExtractError(this.lineNumber, "Unknow param format " + params)
+            }
             let name = aval[0]
             let type = aval[1]
+            if (!name || !type) {
+                throw new ExtractError(this.lineNumber, "Unknow param format " + params)
+            }
             resultParams.push({'name' : name, 'type': type})
         }
         return resultParams
@@ -150,22 +194,33 @@ class Extractor {
 
     extractMethod(line) {
         const visibilityStr = line.split(" ", 1)[0]
-        let result = {'visibility': this.conv[visibilityStr.trim()]}
+        let result = {'visibility': this._convertVisibility(visibilityStr.trim())}
 
         const sign = line.substring(visibilityStr.length).trim()
 
         result.name = sign.substring(0, sign.indexOf('('))
 
-        if (sign.indexOf('(') + 1 > sign.indexOf(')')) {
-            let paramsStr = sign.substring(sign.indexOf('(') + 1, sign.indexOf(')'))
+        if (!result.name) {
+            throw new ExtractError(this.lineNumber, "Unknow method signature " + line)
+        }
 
+        if (sign.indexOf('(') + 1 < sign.indexOf(')')) {
+            let paramsStr = sign.substring(sign.indexOf('(') + 1, sign.indexOf(')'))
             result.parameters = this.extractParameters(paramsStr)
         }
 
         // Not a constructor
         if (sign.substring(0, 1) !== sign.substring(0, 1).toUpperCase()) {
             // has return type
-            result.type = sign.substring(sign.indexOf(')')).split(':')[1].trim()
+            let signSplit = sign.substring(sign.indexOf(')')).split(':').map(x => x.trim())
+            if (signSplit.length < 2 || !signSplit[1]) {
+                throw new ExtractError(this.lineNumber, "Missing or strange return type " + line)
+            }
+            result.type = signSplit[1].trim()
+        } else {
+            if (sign.substring(sign.indexOf(')')).indexOf(":") != -1) {
+                throw new ExtractError(this.lineNumber, "Constructor should not have return type " + line)
+            }
         }
 
         return result
@@ -173,55 +228,62 @@ class Extractor {
 
 }
 
-function parse(data) {
+class Parser {
 
-    let classes = []
+    parse(data) {
+        let classes = []
 
-    let arrayOfLines = data.match(/[^\r\n]+/g);
-    let i = 0;
-
-    let state = new State()
-    const extractor = new Extractor()
-
-    for (let line of arrayOfLines) {
-        line = line.trim()
-        i++
-        if (line.startsWith('#')) {
-            continue
-        }
-        if (!line.trim()) {
-            continue
-        }
-        if (line.startsWith("---")) {
-            if (state.isClass()) {
-                state.startAttrs()
-            } else if (state.isAttrs()) {
-                state.stopAttr()
-                state.startMethods()
-            } else if (state.isMethods()) {
-                state.stopMethods()
-                classes.push(state.stopClass())
-                state = new State()
+        let arrayOfLines = data.match(/[^\r\n]+/g);
+        let i = 0;
+    
+        let state = new State()
+        const extractor = new Extractor()
+    
+        for (let line of arrayOfLines) {
+            line = line.trim()
+            i++
+            extractor.setLine(i)
+            state.setLine(i)
+            if (line.startsWith('#')) {
+                continue
             }
-            continue
-        }
-
-        if (state.isRoot()) {
-            state.startClass(line)
-        } else if (state.isClass()) {
-            let relationships = extractor.extractRelation(line)
-            for (let class_ of relationships.types) {
-                state.addClassRelation(class_, relationships.relation, relationships.inverse)
+            if (!line) {
+                continue
             }
-        } else if (state.isAttrs()) {
-            state.addAttr(extractor.extractAttr(line))
-        } else if (state.isMethods()) {
-            state.addMethod(extractor.extractMethod(line))
+            if (line.startsWith("---")) {
+                if (state.isClass()) {
+                    state.startAttrs()
+                } else if (state.isAttr()) {
+                    state.stopAttr()
+                    state.startMethods()
+                } else if (state.isMethod()) {
+                    state.stopMethods()
+                    classes.push(state.stopClass())
+                    state = new State()
+                } else {
+                    throw new ParseError("Line " + i + ": was expecting a class")
+                }
+                continue
+            }
+    
+            if (state.isRoot()) {
+                state.startClass(line)
+            } else if (state.isClass()) {
+                let relationships = extractor.extractRelation(line)
+                for (let class_ of relationships.types) {
+                    state.addClassRelation(class_, relationships.relation, relationships.inverse)
+                }
+            } else if (state.isAttr()) {
+                state.addAttr(extractor.extractAttr(line))
+            } else if (state.isMethod()) {
+                state.addMethod(extractor.extractMethod(line))
+            }
+    
         }
-
+    
+        return classes
     }
 
-    return classes
 }
 
 function exampleData() {
@@ -283,4 +345,4 @@ association Turma
 ---`
 }
 
-export { parse, exampleData }
+export { Parser, exampleData }
