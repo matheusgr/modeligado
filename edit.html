@@ -2,6 +2,8 @@
 
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="styles.css">
     <script src="https://cdn.jsdelivr.net/npm/gojs@2.1/release/go.js"></script>
     <script src="gojs.js"></script>
     <script type="module" src="parser.js"></script>
@@ -44,17 +46,18 @@
 </head>
 
 <body onload="initDiv()">
-    <div style="width:100%">
-        <button onClick="example()">Example</button>
-        <button onClick="convert()">UML (F2)</button>
+    <div class="flex-container">
+        <div class="flex-column">
+            <div class="flex-row">
+                <button onClick="example()">Example</button>
+                <button onClick="convert()">UML (F2)</button>
+            </div>
+            <div class="flex-row-content">
+                <textarea id="text" class="flex-column col-1"></textarea>
+                <div id="myDiagramDiv" class="flex-column col-2"></div>
+            </div>
+        </div>
     </div>
-    <div style="border: solid 1px black; float:left; width:50%; height:100%">
-        <textarea id="text" style="width:100%; height:100%">
-
-        </textarea>
-    </div>
-    
-    <div id="myDiagramDiv" style="border: solid 1px black; float:right; width:49%; height:100%"></div>
 </body>
 
 </html>
