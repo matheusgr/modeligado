@@ -9,12 +9,20 @@
         import {parse, exampleData} from './parser.js'
 
         window.example = function() {
-            document.getElementById("text").textContent = exampleData()
+            document.getElementById("text").value = exampleData()
             window.convert()
         }
 
+        window.onkeydown = function(e) {
+            if(e.which == 113) { //F2
+                window.convert();
+                return false;
+            }
+        }
+
         window.convert = function convert(data, e) {
-            let text = document.getElementById("text").textContent
+            let text = document.getElementById("text").value
+            console.log(text)
             let result = parse(text)
             let nodeName = []
             let linkData = []
@@ -22,12 +30,13 @@
                 nodeName.push(node.context)
                 linkData.push(...node.relations)
             }
-            console.log(linkData)
+            console.log(nodeName, linkData)
             create(myDiagram, nodeName, linkData)
         }
 
         window.initDiv = function() {
             myDiagram = init()
+            window.initDiv = undefined
         }
     </script>
 </head>
@@ -35,7 +44,7 @@
 <body onload="initDiv()">
     <div style="width:100%">
         <button onClick="example()">Example</button>
-        <button onClick="convert()">UML</button>
+        <button onClick="convert()">UML (F2)</button>
     </div>
     <div style="border: solid 1px black; float:left; width:50%; height:100%">
         <textarea id="text" style="width:100%; height:100%">

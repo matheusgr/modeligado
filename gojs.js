@@ -151,11 +151,19 @@ function init() {
     function convertToArrow(r) {
       switch (r) {
         case "generalization": return "Triangle";
-        case "generalizationInterface": return "StretchedTriangle";
+        case "generalizationInterface": return "Triangle";
         case "aggregation": return "StretchedDiamond";
-        case "composition": return "Diamond";
-        case "association": return "Dot";
+        case "composition": return "StretchedDiamond";
+        case "association": return "";
         default: return "";
+      }
+    }
+
+    function fillToArrow(r) {
+      switch (r) {
+        case "generalizationInterface": return "black";
+        case "composition": return "black";
+        default: return "white";
       }
     }
 
@@ -166,8 +174,9 @@ function init() {
         $(go.Shape),
         $(go.Shape, { scale: 1.3, fill: "white" },
           new go.Binding("fromArrow", "relationship", convertFromArrow)),
-        $(go.Shape, { scale: 1.3, fill: "white" },
-          new go.Binding("toArrow", "relationship", convertToArrow))
+        $(go.Shape, { scale: 1.3 },
+          new go.Binding("toArrow", "relationship", convertToArrow),
+          new go.Binding("fill", "relationship", fillToArrow))
       );
     return myDiagram;
   }

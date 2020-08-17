@@ -16,6 +16,7 @@ class State {
         this.state = "ROOT"
     }
 
+    // --- CHECKS ---
     _check(expectedState) {
         if (this.state !== expectedState) {
             throw new StateError(expectedState)
@@ -28,6 +29,7 @@ class State {
         }
     }
 
+    // --- CLASS ---
     startClass(name) {
         this._check("ROOT")
         this._notExecuted("ROOT", "name")
@@ -36,29 +38,13 @@ class State {
         this.state = "CLASS"
     }
 
-    addClassExtends(extendedClass) {
+    addClassRelation(relatedClass, relation, inverse) {
         this._check("CLASS")
-        this.relations.push({ from: this.context.name, to: extendedClass, relationship: "generalization" })
-    }
-
-    addClassImplemments(implementedClass) {
-        this._check("CLASS")
-        this.relations.push({ from: this.context.name, to: implementedClass, relationship: "generalizationInterface" })
-    }
-
-    addClassAggregates(aggregatedClass) {
-        this._check("CLASS")
-        this.relations.push({ from: this.context.name, to: aggregatedClass, relationship: "aggregation" })
-    }
-
-    addClassComposes(composedClass) {
-        this._check("CLASS")
-        this.relations.push({ from: this.context.name, to: composedClass, relationship: "composition" })
-    }
-
-    addClassAssociate(associatedClass) {
-        this._check("CLASS")
-        this.relations.push({ from: this.context.name, to: associatedClass, relationship: "association" })
+        if (inverse) {
+            this.relations.push({ to: this.context.name, from: relatedClass, relationship: relation })
+        } else {
+            this.relations.push({ from: this.context.name, to: relatedClass, relationship: relation })
+        }
     }
 
     stopClass() {
@@ -124,39 +110,39 @@ class State {
 }
 
 class Extractor {
+
     constructor() {
         this.conv = {'-' : 'private', '+': 'public', '#': 'protected'}
-    }
-    extractExtends(line) {
-        const startPos = "extends ".length
-        return line.substring(startPos, line.length).split(',')
+        // name and if it is inverted
+        this.relations = {"extends": ["generalization", false],
+                                      "implements": ["generalizationInterface", false],
+                                      "association": ["association", false],
+                                      "composes": ["composition", true],
+                                      "aggregates": ["aggregation", true]
+                            }
     }
 
-    extractImplemments(line) {
-        const startPos = "implemments ".length
-        return line.substring(startPos, line.length).split(',')
+    extractRelation(line) {
+        let relation = line.split(" ")[0]
+        let types = line.substring(relation.length + 1, line.length).split(',').map(x => x.trim())
+        return {"relation": this.relations[relation][0], "types": types, "inverse": this.relations[relation][1]}
     }
 
     extractAttr(line) {
-        const split = line.split(" ")
+        const split = line.split(" ").map(x => x.trim())
         const visibility = this.conv[split[0]]
-        const name = split[1]
+        const name = split[1].substring(0, split[1].length - 1)
         const type = split[2]
         return {'name': name, 'type': type, 'visibility': visibility}
     }
-
-    // + Aluno(nome: str, nasc: int)
-    // + setNome(nome: str): void
-    // { name: "deposit", parameters: [{ name: "amount", type: "Currency" }], visibility: "public" },
-    // { name: "getCurrentAge", type: "int", visibility: "public" }
 
     extractParameters(params) {
         let resultParams = []
         for (let param of params.split(',')) {
             param = param.trim()
-            let aval = param.split(':')
-            let name = aval[0].trim()
-            let type = aval[1].trim()
+            let aval = param.split(':').map(x => x.trim())
+            let name = aval[0]
+            let type = aval[1]
             resultParams.push({'name' : name, 'type': type})
         }
         return resultParams
@@ -165,16 +151,20 @@ class Extractor {
     extractMethod(line) {
         const visibilityStr = line.split(" ", 1)[0]
         let result = {'visibility': this.conv[visibilityStr.trim()]}
+
         const sign = line.substring(visibilityStr.length).trim()
 
         result.name = sign.substring(0, sign.indexOf('('))
 
-        let paramsStr = sign.substring(sign.indexOf('(') + 1, sign.indexOf(')'))
+        if (sign.indexOf('(') + 1 > sign.indexOf(')')) {
+            let paramsStr = sign.substring(sign.indexOf('(') + 1, sign.indexOf(')'))
 
-        result.parameters = this.extractParameters(paramsStr)
+            result.parameters = this.extractParameters(paramsStr)
+        }
 
-        // Method (has return type)
+        // Not a constructor
         if (sign.substring(0, 1) !== sign.substring(0, 1).toUpperCase()) {
+            // has return type
             result.type = sign.substring(sign.indexOf(')')).split(':')[1].trim()
         }
 
@@ -195,7 +185,6 @@ function parse(data) {
 
     for (let line of arrayOfLines) {
         line = line.trim()
-        console.log(i, line, classes)
         i++
         if (line.startsWith('#')) {
             continue
@@ -220,15 +209,9 @@ function parse(data) {
         if (state.isRoot()) {
             state.startClass(line)
         } else if (state.isClass()) {
-            if (line.startsWith("extends ")) {
-                for (let class_ of extractor.extractExtends(line)) {
-                    state.addClassExtends(class_)
-                }
-            }
-            if (line.startsWith("implements ")) {
-                for (let class_ of extractor.extractImplemments(line)) {
-                    state.addClassImplemments(class_)
-                }
+            let relationships = extractor.extractRelation(line)
+            for (let class_ of relationships.types) {
+                state.addClassRelation(class_, relationships.relation, relationships.inverse)
             }
         } else if (state.isAttrs()) {
             state.addAttr(extractor.extractAttr(line))
@@ -242,11 +225,25 @@ function parse(data) {
 }
 
 function exampleData() {
-    return `# diagrama
+    return `# diagrama de classes de exemplo
+# linhas com # são ignoradas
+
+Nomeavel <Interface>
+---
+---
++ getNome(): str
+---
+
+
+Identificavel <Interface>
+---
+---
++ getId(): int
+---
 
 Aluno
 extends Pessoa
-implements Nomeavel, Identificavel
+implements Nomeavel <Interface>, Identificavel <Interface>
 ---
 - turmas: List<Turma>
 - nome: str
@@ -255,6 +252,8 @@ implements Nomeavel, Identificavel
 + Aluno(nome: str)
 + Aluno(nome: str, nasc: int)
 + setNome(nome: str): void
++ getNome(): str
++ getId(): int
 ---
 
 Pessoa
@@ -264,6 +263,20 @@ Pessoa
 ---
 
 Turma
+aggregates Aluno
+---
+- cod: int
+---
+---
+
+Universidade
+composes Departamento
+---
+---
+---
+
+Departamento
+association Turma
 ---
 - cod: int
 ---

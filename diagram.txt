@@ -1,8 +1,22 @@
-# diagrama
+# diagrama de classes de exemplo
+# linhas com # são ignoradas
+
+Nomeavel <Interface>
+---
+---
++ getNome(): str
+---
+
+
+Identificavel <Interface>
+---
+---
++ getId(): int
+---
 
 Aluno
 extends Pessoa
-implements Nomeavel, Identificavel
+implements Nomeavel <Interface>, Identificavel <Interface>
 ---
 - turmas: List<Turma>
 - nome: str
@@ -11,6 +25,8 @@ implements Nomeavel, Identificavel
 + Aluno(nome: str)
 + Aluno(nome: str, nasc: int)
 + setNome(nome: str): void
++ getNome(): str
++ getId(): int
 ---
 
 Pessoa
@@ -20,6 +36,20 @@ Pessoa
 ---
 
 Turma
+aggregates Aluno
+---
+- cod: int
+---
+---
+
+Universidade
+composes Departamento
+---
+---
+---
+
+Departamento
+association Turma
 ---
 - cod: int
 ---
