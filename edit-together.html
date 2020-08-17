@@ -1,0 +1,65 @@
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/gojs@2.1/release/go.js"></script>
+    <script src="https://togetherjs.com/togetherjs-min.js"></script>
+    <script src="gojs.js"></script>
+    <script type="module" src="parser.js"></script>
+    <script type="module" src="example_data.js"></script>
+    <script type="module">
+        import {Parser} from './parser.js'
+        import {exampleData} from './example_data.js'
+
+        window.example = function() {
+            document.getElementById("text").value = exampleData()
+            window.convert()
+        }
+
+        window.onkeydown = function(e) {
+            if(e.which == 113) { //F2
+                window.convert();
+                return false;
+            }
+        }
+
+        window.convert = function convert(data, e) {
+            let text = document.getElementById("text").value
+            console.log(text)
+            let result = new Parser().parse(text)
+            let nodeName = []
+            let linkData = []
+            for (let node of result) {
+                nodeName.push(node.context)
+                linkData.push(...node.relations)
+            }
+            console.log(nodeName, linkData)
+            create(myDiagram, nodeName, linkData)
+        }
+
+        window.initDiv = function() {
+            myDiagram = init()
+            window.initDiv = undefined
+        }
+    </script>
+</head>
+
+<body onload="initDiv()">
+    <div class="flex-container">
+        <div class="flex-column">
+            <div class="flex-row">
+                <button onClick="example()">Example</button>
+                <button onClick="convert()">UML (F2)</button>
+                <button onclick="TogetherJS(this); return false;">Start TogetherJS</button>
+            </div>
+            <div class="flex-row-content">
+                <textarea id="text" class="flex-column col-1"></textarea>
+                <div id="myDiagramDiv" class="flex-column col-2"></div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
