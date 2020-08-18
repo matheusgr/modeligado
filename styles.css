@@ -11,6 +11,7 @@
 .flex-row-menu {
     display: flex;
     flex-direction: row;
+    padding: 0.2em
 }
 
 .flex-row-content {
@@ -22,7 +23,8 @@
 .flex-row-end {
     flex-grow: 1;
     justify-content: end;
-    display: flex
+    display: flex;
+    flex-direction: row;
 }
 
 .col-1 {
@@ -37,6 +39,10 @@
 
 .error {
     padding: 1em;
+}
+
+.code {
+    font-family:courier,arial,helvetica;
 }
 
 @media (max-width: 400px) {

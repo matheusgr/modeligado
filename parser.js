@@ -31,7 +31,7 @@ class State {
 
     _notExecuted(state, property) {
         if (this.context && this.context.hasOwnProperty(property)) {
-            throw new ParseError(this.lineNumber, "State '" + state + "' was already executed.")
+            throw new ParseError(this.lineNumber, "State was already executed: '" + state + "'.")
         }
     }
 

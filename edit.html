@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="normalize.css">
     <link rel="stylesheet" href="styles.css">
     <script src="https://cdn.jsdelivr.net/npm/gojs@2.1/release/go.js"></script>
 
@@ -10,6 +11,15 @@
         TogetherJSConfig_hubBase = "https://togetherjs-hub.glitch.me/"
     </script>
 
+
+    <script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+
+    <script type="text/javascript">
+        function googleTranslateElementInit() {
+        new google.translate.TranslateElement({pageLanguage: 'en', layout: google.translate.TranslateElement.InlineLayout.SIMPLE}, 'google_translate_element');
+        }
+    </script>
+    
     <script src="https://togetherjs.com/togetherjs-min.js"></script>
     <script src="gojs.js"></script>
     <script type="module" src="parser.js"></script>
@@ -105,13 +115,13 @@
             <div class="flex-row-menu">
                 <div>
                     <button onClick="convert()">Save and Create UML (F2)</button>
+                    <button id="loadButton" onClick="loadLocal()">Load Text</button>
+                    <button id="saveButton" onClick="saveLocal()">Save Text</button>
+                    <button id="clearButton" onClick="clearLocal()">Clear Storage</button>
                     <span id="error" class="error">No errors detected...</span>    
                 </div>
                 <div class="flex-row-end">
-
-                    <button id="loadButton" onClick="loadLocal()">Load</button>
-                    <button id="saveButton" onClick="saveLocal()">Save</button>
-                    <button id="clearButton" onClick="clearLocal()">Clear</button>
+                    <div id="google_translate_element"></div>
                     <button id="start-togetherjs" type="button"
                     onclick="TogetherJS(this); return false"
                     data-end-togetherjs-html="End TogetherJS">
@@ -120,7 +130,7 @@
                 </div>
             </div>
             <div class="flex-row-content">
-                <textarea onkeyup="enableSave()" onChange="enableSave()" placeholder="Text UML here..." id="text" class="flex-column col-1"></textarea>
+                <textarea onkeyup="enableSave()" onChange="enableSave()" placeholder="Text UML here..." id="text" class="code flex-column col-1"></textarea>
                 <div id="myDiagramDiv" class="flex-column col-2"></div>
             </div>
         </div>
