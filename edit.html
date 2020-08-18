@@ -59,6 +59,11 @@
             document.getElementById("saveButton").disabled = false
         }
 
+        window.example = function() {
+            setTextUMLValue(exampleData())
+            window.convert()
+        }
+
         window.onkeydown = function(e) {
             if(e.which == 113) { //F2
                 window.convert();
