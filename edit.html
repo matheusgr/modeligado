@@ -33,15 +33,20 @@
 
         window.convert = function convert(data, e) {
             let text = document.getElementById("text").value
-            console.log(text)
-            let result = new Parser().parse(text)
+            let result;
+            try {
+                result = new Parser().parse(text)
+                document.getElementById("error").textContent = "No errors detected..."
+            } catch (err) {
+                document.getElementById("error").textContent = err.message
+                return;
+            }
             let nodeName = []
             let linkData = []
             for (let node of result) {
                 nodeName.push(node.context)
                 linkData.push(...node.relations)
             }
-            console.log(nodeName, linkData)
             create(myDiagram, nodeName, linkData)
         }
 
@@ -55,17 +60,22 @@
 <body onload="initDiv()">
     <div class="flex-container">
         <div class="flex-column">
-            <div class="flex-row">
-                <button onClick="example()">Example</button>
-                <button onClick="convert()">UML (F2)</button>
-                <button id="start-togetherjs" type="button"
+            <div class="flex-row-menu">
+                <div>
+                    <button onClick="example()">Example</button>
+                    <button onClick="convert()">UML (F2)</button>
+                    <span id="error" class="error">No errors detected...</span>    
+                </div>
+                <div class="flex-row-end">
+                    <button id="start-togetherjs" type="button"
                     onclick="TogetherJS(this); return false"
                     data-end-togetherjs-html="End TogetherJS">
                     Start TogetherJS
                 </button>
+                </div>
             </div>
             <div class="flex-row-content">
-                <textarea id="text" class="flex-column col-1"></textarea>
+                <textarea placeholder="Text UML here..." id="text" class="flex-column col-1"></textarea>
                 <div id="myDiagramDiv" class="flex-column col-2"></div>
             </div>
         </div>

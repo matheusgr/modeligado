@@ -8,9 +8,9 @@
     flex-direction: column
 }
 
-.flex-row {
+.flex-row-menu {
     display: flex;
-    flex-direction: row
+    flex-direction: row;
 }
 
 .flex-row-content {
@@ -19,6 +19,11 @@
     flex-grow: 1
 }
 
+.flex-row-end {
+    flex-grow: 1;
+    justify-content: end;
+    display: flex
+}
 
 .col-1 {
     width: 50%;
@@ -30,6 +35,9 @@
     flex-grow: 1
 }
 
+.error {
+    padding: 1em;
+}
 
 @media (max-width: 400px) {
     .flex-row-content {

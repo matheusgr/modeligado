@@ -248,11 +248,16 @@ class Parser {
     }
 
     parse(data) {
-        let classes = []
-        let arrayOfLines = data.match(/[^\r\n]+/g);
+
         let lineNumber = 0;
         let state = new State()
         const extractor = new Extractor()
+
+        let classes = []
+        let arrayOfLines = data.match(/[^\r\n]+/g);
+        if (!arrayOfLines) {
+            throw new ParseError(0, "No text found.")
+        }
     
         for (let line of arrayOfLines.map(x => x.trim())) {
             extractor.setLine(++lineNumber)
