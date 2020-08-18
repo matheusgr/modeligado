@@ -19,9 +19,44 @@
         import {Parser} from './parser.js'
         import {exampleData} from './example_data.js'
 
-        window.example = function() {
-            document.getElementById("text").value = exampleData()
-            window.convert()
+        const setTextUMLValue = function(value) {
+            document.getElementById("text").value = value
+        }
+
+        const getTextUMLValue = function() {
+            return document.getElementById("text").value
+        }
+
+        const load = function() {
+            if (localStorage.getItem("uml")) {
+                setTextUMLValue(localStorage.getItem("uml"))
+                document.getElementById("saveButton").disabled = true
+            } else {
+                clear()
+                example()
+            }
+            convert()
+        }
+
+        const clear = function() {
+            document.getElementById("loadButton").disabled = true
+            document.getElementById("clearButton").disabled = true
+            localStorage.clear();
+        }
+
+        const save = function() {
+            document.getElementById("saveButton").disabled = true
+            document.getElementById("loadButton").disabled = false
+            document.getElementById("clearButton").disabled = false
+            localStorage.setItem('uml', getTextUMLValue());
+        }
+
+        window.loadLocal = load
+        window.saveLocal = save
+        window.clearLocal = clear
+
+        window.enableSave = function() {
+            document.getElementById("saveButton").disabled = false
         }
 
         window.onkeydown = function(e) {
@@ -32,7 +67,7 @@
         }
 
         window.convert = function convert(data, e) {
-            let text = document.getElementById("text").value
+            let text = getTextUMLValue()
             let result;
             try {
                 result = new Parser().parse(text)
@@ -47,12 +82,14 @@
                 nodeName.push(node.context)
                 linkData.push(...node.relations)
             }
+            save()
             create(myDiagram, nodeName, linkData)
         }
 
         window.initDiv = function() {
             myDiagram = init()
             window.initDiv = undefined
+            load()
         }
     </script>
 </head>
@@ -62,11 +99,14 @@
         <div class="flex-column">
             <div class="flex-row-menu">
                 <div>
-                    <button onClick="example()">Example</button>
-                    <button onClick="convert()">UML (F2)</button>
+                    <button onClick="convert()">Save and Create UML (F2)</button>
                     <span id="error" class="error">No errors detected...</span>    
                 </div>
                 <div class="flex-row-end">
+
+                    <button id="loadButton" onClick="loadLocal()">Load</button>
+                    <button id="saveButton" onClick="saveLocal()">Save</button>
+                    <button id="clearButton" onClick="clearLocal()">Clear</button>
                     <button id="start-togetherjs" type="button"
                     onclick="TogetherJS(this); return false"
                     data-end-togetherjs-html="End TogetherJS">
@@ -75,7 +115,7 @@
                 </div>
             </div>
             <div class="flex-row-content">
-                <textarea placeholder="Text UML here..." id="text" class="flex-column col-1"></textarea>
+                <textarea onkeyup="enableSave()" onChange="enableSave()" placeholder="Text UML here..." id="text" class="flex-column col-1"></textarea>
                 <div id="myDiagramDiv" class="flex-column col-2"></div>
             </div>
         </div>
