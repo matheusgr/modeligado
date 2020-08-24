@@ -1,6 +1,17 @@
+body {
+    --background-header: #303641;
+    --background-main: #373d47;
+    --dark-grey: #959595;
+    --font-color: #FFFFFF;
+    --button-hover: #12E083;
+    
+    font-family: 'Lato', sans-serif;
+    font-weight: 400;
+}
+
 .flex-container {
     display: flex;
-    height: 100%
+    height: 100%;
 }
 .flex-column {
     display: flex;
@@ -8,24 +19,119 @@
     flex-direction: column
 }
 
-.flex-row-menu {
-    display: flex;
-    flex-direction: row;
-    padding: 0.2em
+header {
+    background-color: var(--background-header);
+    padding: 0 1em;
+
+    box-shadow: 0 2px 3px #0000004f;
+    z-index: 0;
 }
 
-.flex-row-content {
+.top-header {
     display: flex;
-    flex-direction: row;
-    flex-grow: 1
+    justify-content: space-between;
+    align-items: center;
+    
+    box-sizing: border-box;
+    height: 4em;
+    padding: 0.5em 0;
+    
+    border-bottom: thin solid #939796;
+
+    font-family: 'Russo One', sans-serif;
 }
 
-.flex-row-end {
+.logo {
+    font-size: 2em;
+    color: var(--font-color);
+    text-transform: uppercase;
+}
+
+.config-page {
+    display: flex;
+    position: fixed;
+    right: 1em;
+    top: 0;
+}
+
+#start-togetherjs {
+    font-family: arial;
+    background-color: #FFF;
+    border: thin solid #d5d5d5;
+    font-size: 12px;
+    cursor: pointer;
+}
+
+#start-togetherjs::before {
+    display: inline-block;
+
+    width: 12px; 
+    height: 12px;
+
+    background-image: url('img/together-icon.png');
+    background-size: 12px 12px;
+    content: "";
+}
+
+nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    height: 3em;
+}
+
+.error {
+    color: var(--font-color);
+}
+
+
+.menu button {
+    color: var(--font-color);
+    
+    border-radius: 8px;
+
+    padding: 10px;
+
+    transition: 400ms;
+}
+
+.menu button:not(:last-child)::after {
+    margin-left: 1em;
+    content: " \2011";
+    color: var(--font-color);
+}
+
+.menu button:not(:disabled):hover {
+    color: var(--button-hover);
+    background-color: #404857;
+}
+
+.menu button:disabled {
+    color: var(--dark-grey);
+    cursor: default;
+}
+
+main {
+    display: flex;
+    flex-direction: row;
     flex-grow: 1;
-    justify-content: end;
-    display: flex;
-    flex-direction: row;
-}
+
+    background-color: var(--background-main);
+
+    padding: 1em;
+    gap: 1em
+ }
+
+main * {
+    box-shadow: 1px 3px rgba(0, 0, 0, 0.24), 1px 2px rgba(0, 0, 0, 0.24);
+    outline-color: var(--background-header);
+    border-radius: 4px;
+    overflow: hidden;
+    overflow-y: auto;
+
+    background-color: #FFF;
+} 
 
 .col-1 {
     width: 50%;
@@ -34,12 +140,9 @@
 
 .col-2 {
     width: 50%;
-    flex-grow: 1
+    flex-grow: 1;
 }
 
-.error {
-    padding: 1em;
-}
 
 .code {
     font-family:courier,arial,helvetica;

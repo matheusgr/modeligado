@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="normalize.css">
     <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Russo+One&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/gojs@2.1/release/go.js"></script>
 
     <script>
@@ -106,33 +107,41 @@
             window.initDiv = undefined
             load()
         }
+        
     </script>
 </head>
 
 <body onload="initDiv()">
     <div class="flex-container">
         <div class="flex-column">
-            <div class="flex-row-menu">
-                <div>
-                    <button onClick="convert()">Save and Create UML (F2)</button>
-                    <button id="loadButton" onClick="loadLocal()">Load Text</button>
-                    <button id="saveButton" onClick="saveLocal()">Save Text</button>
-                    <button id="clearButton" onClick="clearLocal()">Clear Storage</button>
+            <header>
+                <div class="top-header">
+                    <span class="logo">modeligado</span>
+
+                    <div class="config-page">
+                        <button id="start-togetherjs" type="button"
+                        onclick="TogetherJS(this); return false"
+                        data-end-togetherjs-html="End TogetherJS">
+                        Start TogetherJS
+                        </button>
+                        <div id="google_translate_element"></div>
+                    </div>
+                </div>
+                <nav>
                     <span id="error" class="error">No errors detected...</span>    
-                </div>
-                <div class="flex-row-end">
-                    <div id="google_translate_element"></div>
-                    <button id="start-togetherjs" type="button"
-                    onclick="TogetherJS(this); return false"
-                    data-end-togetherjs-html="End TogetherJS">
-                    Start TogetherJS
-                </button>
-                </div>
-            </div>
-            <div class="flex-row-content">
+                
+                    <div class="menu">
+                        <button class="nav-button" onClick="convert()">Save and Create UML (F2)</button>
+                        <button class="nav-button" id="loadButton" onClick="loadLocal()">Load Text</button>
+                        <button class="nav-button" id="saveButton" onClick="saveLocal()">Save Text</button>
+                        <button class="nav-button" id="clearButton" onClick="clearLocal()">Clear Storage</button>
+                    </div>
+                </nav>
+            </header>
+            <main>
                 <textarea onkeyup="enableSave()" onChange="enableSave()" placeholder="Text UML here..." id="text" class="code flex-column col-1"></textarea>
                 <div id="myDiagramDiv" class="flex-column col-2"></div>
-            </div>
+            </main>
         </div>
     </div>
 </body>
