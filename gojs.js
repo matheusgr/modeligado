@@ -12,7 +12,6 @@ function init() {
               path: go.TreeLayout.PathSource,  // links go from child to parent
               setsPortSpot: false,  // keep Spot.AllSides for link connection spot
               setsChildPortSpot: false,  // keep Spot.AllSides
-              // nodes not connected by "generalization" links are laid out horizontally
               arrangement: go.TreeLayout.ArrangementHorizontal
             })
         });
@@ -138,7 +137,7 @@ function init() {
       );
 
     function convertIsTreeLink(r) {
-      return r === "generalization";
+      return r && r.length > 0;
     }
 
     function convertFromArrow(r) {
@@ -169,7 +168,8 @@ function init() {
 
     myDiagram.linkTemplate =
       $(go.Link,
-        { routing: go.Link.Orthogonal },
+        { routing: go.Link.AvoidsNodes,  // may be either Orthogonal or AvoidsNodes
+          curve: go.Link.JumpOver },
         new go.Binding("isLayoutPositioned", "relationship", convertIsTreeLink),
         $(go.Shape),
         $(go.Shape, { scale: 1.3, fill: "white" },
