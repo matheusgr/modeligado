@@ -1,8 +1,8 @@
 export function exampleData() {
-    return `# diagrama de classes de exemplo
-# linhas com # são ignoradas
+    return `// diagrama de classes de exemplo
+// linhas com // são ignoradas
 
-Nomeavel <Interface>
+Nomeavel <Interface>  // bem como comentarios no meio de uma linha
 ---
 ---
 + getNome(): str

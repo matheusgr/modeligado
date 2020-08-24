@@ -137,6 +137,10 @@ class Extractor {
         return {"relation": this.relations[relation][0], "types": types, "inverse": this.relations[relation][1]}        
     }
 
+    removeComment(line) {
+        return line.split("//")[0].trim()
+    }
+
     extractRelation(line) {
         let relation = line.split(" ")[0].trim()
         let types = line.substring(relation.length + 1, line.length).split(',').map(x => x.trim())
@@ -262,7 +266,8 @@ class Parser {
         for (let line of arrayOfLines.map(x => x.trim())) {
             extractor.setLine(++lineNumber)
             state.setLine(lineNumber)
-            if (line.startsWith('#') || !line) {
+            line = extractor.removeComment(line)
+            if (line.startsWith('//') || !line) {
                 continue
             }
             if (line.startsWith("---")) {
