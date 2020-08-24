@@ -154,13 +154,13 @@ main * {
         flex-grow: 0
     }
     .col-1 {
-        width: 95vw;
+        width: 90vw;
         height: 105vh;
         display: flex;
         flex-direction: row;
     }
     .col-2 {
-        width: 95vw;
+        width: 90vw;
         height: 95vh;
         display: flex;
         flex-direction: row;
