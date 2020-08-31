@@ -214,6 +214,8 @@ class Extractor {
         if (signature.indexOf('(') + 1 < signature.indexOf(')')) {
             let paramsStr = signature.substring(signature.indexOf('(') + 1, signature.indexOf(')'))
             result.parameters = this.extractParameters(paramsStr)
+        } else if (signature.indexOf('(') > signature.indexOf(')')) {
+            throw new ParseError(this.lineNumber, "Unknow method signature " + line)
         }
 
         this._getReturnType(signature, result, line)
