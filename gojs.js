@@ -5,6 +5,7 @@ function init() {
     myDiagram =
       $(go.Diagram, "myDiagramDiv",
         {
+          "animationManager.isEnabled": false,
           "undoManager.isEnabled": true,
           layout: $(go.TreeLayout,
             { // this only lays out in trees nodes connected by "generalization" links
