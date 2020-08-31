@@ -150,6 +150,9 @@ class Extractor {
     }
 
     extractAttr(line) {
+        if (line.indexOf('(') != -1 || line.indexOf(')') != -1) {
+            throw new ParseError(this.lineNumber, "Unknow attr format " + line)
+        }
         const split = line.split(" ").map(x => x.trim())
         if (split.length != 3) {
             throw new ParseError(this.lineNumber, "Unknow attr format " + line)
