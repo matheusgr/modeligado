@@ -102,6 +102,33 @@
             create(myDiagram, nodeName, linkData)
         }
 
+        // https://gojs.net/latest/samples/minimalBlob.html
+        window.exportPng = function exportPng(data, e) {
+            var blob = myDiagram.makeImageData({ size: myDiagram.documentBounds, background: "white", returnType: "blob", callback: (blob) => {
+                console.log(blob);
+                var url = window.URL.createObjectURL(blob);
+                var filename = "uml.png";
+
+                var a = document.createElement("a");
+                a.style = "display: none";
+                a.href = url;
+                a.download = filename;
+
+                // IE 11
+                if (window.navigator.msSaveBlob !== undefined) {
+                    window.navigator.msSaveBlob(blob, filename);
+                    return;
+                }
+
+                document.body.appendChild(a);
+                requestAnimationFrame(function() {
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                    document.body.removeChild(a);
+                });
+            } });
+        }
+
         window.initDiv = function() {
             myDiagram = init()
             window.initDiv = undefined
@@ -132,6 +159,7 @@
                 
                     <div class="menu">
                         <button class="nav-button" onClick="convert()">Save and Create UML (F2)</button>
+                        <button class="nav-button" onClick="exportPng()">Export PNG</button>
                         <button class="nav-button" id="loadButton" onClick="loadLocal()">Load Text</button>
                         <button class="nav-button" id="saveButton" onClick="saveLocal()">Save Text</button>
                         <button class="nav-button" id="clearButton" onClick="clearLocal()">Clear Storage</button>
