@@ -1,11 +1,30 @@
 import {Parser} from './parser.js'
 
+function difference(setA, setB) {
+    let _difference = new Set(setA)
+    for (let elem of setB) {
+        _difference.delete(elem)
+    }
+    return _difference
+}
+
 function parse(text, nodeName, linkData) {
     let result = new Parser().parse(text)
+    let relates = new Set()
+    let classes = new Set()
     for (let node of result) {
+        for (let relatedClass of node.relates) {
+            relates.add(relatedClass)
+        }
+        classes.add(node.context.name)
         nodeName.push(node.context)
         linkData.push(...node.relations)
     }
+    let missingClasses = []
+    for (let missingClass of difference(relates, classes)) {
+        missingClasses.push({"name": missingClass, "key": missingClass})
+    }
+    return missingClasses
 }
 
 // https://gojs.net/latest/samples/minimalBlob.html

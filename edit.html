@@ -75,7 +75,8 @@
             let nodeName = []
             let linkData = []
             try {
-                parse(text, nodeName, linkData)
+                let missingClasses = parse(text, nodeName, linkData)
+                nodeName.push(...missingClasses)
                 errorDiv.textContent = "No errors detected..."
             } catch (err) {
                 errorDiv.textContent = err.message

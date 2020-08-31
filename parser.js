@@ -41,11 +41,13 @@ class State {
         this._notExecuted("ROOT", "name")
         this.context = { "name": name, "key": name }
         this.relations = []
+        this.relates = new Set()
         this.state = "CLASS"
     }
 
     addClassRelation(relatedClass, relation, inverse) {
         this._check("CLASS")
+        this.relates.add(relatedClass)
         if (inverse) {
             this.relations.push({ to: this.context.name, from: relatedClass, relationship: relation })
         } else {
@@ -56,7 +58,7 @@ class State {
     stopClass() {
         this._check("CLASS")
         this.state = "ROOT"
-        return { "context": this.context, "relations": this.relations }
+        return { "context": this.context, "relations": this.relations, "relates": this.relates }
     }
 
     // --- ATTR ---
