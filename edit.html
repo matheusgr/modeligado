@@ -30,6 +30,10 @@
         import {Parser} from './parser.js'
         import {exampleData} from './example_data.js'
 
+        let autoUpdate = true
+
+        let timeout = null
+
         const setTextUMLValue = function(value) {
             document.getElementById("text").value = value
         }
@@ -70,6 +74,20 @@
             document.getElementById("saveButton").disabled = false
         }
 
+        window.enableAutoUpdate = function() {
+            if (autoUpdate) {
+                if (timeout) {
+                    clearTimeout(timeout);
+                    timeout = null;
+                }
+                document.getElementById("autoUpdateButton").textContent = "☐ Auto Update"
+            } else {
+                window.convert()
+                document.getElementById("autoUpdateButton").textContent = "☑ Auto Update"
+            }
+            autoUpdate = !autoUpdate
+        }
+
         window.example = function() {
             setTextUMLValue(exampleData())
             window.convert()
@@ -80,6 +98,19 @@
                 window.convert();
                 return false;
             }
+
+            if (!autoUpdate) {
+                return true;
+            }
+
+            if(timeout) {
+                clearTimeout(timeout);
+                timeout = null;
+            }
+
+            timeout = setTimeout(() => {
+                window.convert()
+            }, 2000)
         }
 
         window.convert = function convert(data, e) {
@@ -155,7 +186,10 @@
                     </div>
                 </div>
                 <nav>
-                    <span id="error" class="error">No errors detected...</span>    
+                    <div class="menu">
+                        <button class="nav-button" id="autoUpdateButton" onClick="enableAutoUpdate()">☑ Auto Update</button>
+                        <span id="error" class="error">No errors detected...</span>    
+                    </div>
                 
                     <div class="menu">
                         <button class="nav-button" onClick="convert()">Save and Create UML (F2)</button>
