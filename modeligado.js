@@ -9,12 +9,10 @@ function parse(text, nodeName, linkData) {
 }
 
 // https://gojs.net/latest/samples/minimalBlob.html
-function exportPng(myDiagram, filename, data, e) {
+function exportPng(myDiagram, filename) {
     myDiagram.makeImageData({ size: myDiagram.documentBounds, background: "white", returnType: "blob", callback: (blob) => {
         console.log(blob);
         var url = window.URL.createObjectURL(blob);
-        var filename = filename;
-
         var a = document.createElement("a");
         a.style = "display: none";
         a.href = url;
