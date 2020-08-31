@@ -1,9 +1,9 @@
 // https://gojs.net/latest/samples/umlClass.html
-function init() {
+function init(div) {
     var $ = go.GraphObject.make;
 
-    myDiagram =
-      $(go.Diagram, "myDiagramDiv",
+    let myDiagram =
+      $(go.Diagram, div,
         {
           "animationManager.isEnabled": false,
           "undoManager.isEnabled": true,
@@ -263,3 +263,5 @@ function create(myDiagram, nodedata, linkdata) {
           linkDataArray: linkdata
         });
 }
+
+export {init, create}

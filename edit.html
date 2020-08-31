@@ -12,7 +12,6 @@
         TogetherJSConfig_hubBase = "https://togetherjs-hub.glitch.me/"
     </script>
 
-
     <script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
 
     <script type="text/javascript">
@@ -22,57 +21,22 @@
     </script>
     
     <script src="https://togetherjs.com/togetherjs-min.js"></script>
-    <script src="gojs.js"></script>
-    <script type="module" src="parser.js"></script>
-    <script type="module" src="example_data.js"></script>
 
     <script type="module">
-        import {Parser} from './parser.js'
-        import {exampleData} from './example_data.js'
+        import {init, create} from "./gojs.js"
+        import {parse, exportPng} from "./modeligado.js"
+        import {load, clear, save} from "./modeligado_storage.js"
 
         let autoUpdate = true
-
+        let myDiagram = null
         let timeout = null
+        let buttons = {}
+        let errorDiv = null
+        let textArea = null
 
-        const setTextUMLValue = function(value) {
-            document.getElementById("text").value = value
-        }
-
-        const getTextUMLValue = function() {
-            return document.getElementById("text").value
-        }
-
-        const load = function() {
-            if (localStorage.getItem("uml")) {
-                setTextUMLValue(localStorage.getItem("uml"))
-                document.getElementById("saveButton").disabled = true
-            } else {
-                clear()
-                example()
-            }
-            convert()
-        }
-
-        const clear = function() {
-            document.getElementById("loadButton").disabled = true
-            document.getElementById("clearButton").disabled = true
-            localStorage.clear();
-        }
-
-        const save = function() {
-            document.getElementById("saveButton").disabled = true
-            document.getElementById("loadButton").disabled = false
-            document.getElementById("clearButton").disabled = false
-            localStorage.setItem('uml', getTextUMLValue());
-        }
-
-        window.loadLocal = load
-        window.saveLocal = save
-        window.clearLocal = clear
-
-        window.enableSave = function() {
-            document.getElementById("saveButton").disabled = false
-        }
+        window.loadLocal = () => { textArea.value = load(buttons); window.convert() }
+        window.saveLocal = () => save(textArea.value, buttons)
+        window.clearLocal = () => clear(buttons)
 
         window.enableAutoUpdate = function() {
             if (autoUpdate) {
@@ -88,82 +52,52 @@
             autoUpdate = !autoUpdate
         }
 
-        window.example = function() {
-            setTextUMLValue(exampleData())
-            window.convert()
-        }
-
         window.onkeydown = function(e) {
             if(e.which == 113) { //F2
                 window.convert();
                 return false;
             }
-
+            buttons.save.disabled = false
             if (!autoUpdate) {
                 return true;
             }
-
             if(timeout) {
                 clearTimeout(timeout);
                 timeout = null;
             }
-
             timeout = setTimeout(() => {
-                window.convert()
+                convert()
             }, 2000)
         }
 
-        window.convert = function convert(data, e) {
-            let text = getTextUMLValue()
-            let result;
-            try {
-                result = new Parser().parse(text)
-                document.getElementById("error").textContent = "No errors detected..."
-            } catch (err) {
-                document.getElementById("error").textContent = err.message
-                return;
-            }
+        const convert = function() {
+            let text = textArea.value
             let nodeName = []
             let linkData = []
-            for (let node of result) {
-                nodeName.push(node.context)
-                linkData.push(...node.relations)
+            try {
+                parse(text, nodeName, linkData)
+                errorDiv.textContent = "No errors detected..."
+            } catch (err) {
+                errorDiv.textContent = err.message
+                return;
             }
-            save()
             create(myDiagram, nodeName, linkData)
         }
 
-        // https://gojs.net/latest/samples/minimalBlob.html
-        window.exportPng = function exportPng(data, e) {
-            var blob = myDiagram.makeImageData({ size: myDiagram.documentBounds, background: "white", returnType: "blob", callback: (blob) => {
-                console.log(blob);
-                var url = window.URL.createObjectURL(blob);
-                var filename = "uml.png";
-
-                var a = document.createElement("a");
-                a.style = "display: none";
-                a.href = url;
-                a.download = filename;
-
-                // IE 11
-                if (window.navigator.msSaveBlob !== undefined) {
-                    window.navigator.msSaveBlob(blob, filename);
-                    return;
-                }
-
-                document.body.appendChild(a);
-                requestAnimationFrame(function() {
-                    a.click();
-                    window.URL.revokeObjectURL(url);
-                    document.body.removeChild(a);
-                });
-            } });
-        }
+        window.convert = () => {convert(); saveLocal()}
+        window.exportPng = () => {exportPng(myDiagram, "uml.png")}
 
         window.initDiv = function() {
-            myDiagram = init()
+            buttons['save'] = document.getElementById("saveButton")
+            buttons['load'] = document.getElementById("loadButton")
+            buttons['clear'] = document.getElementById("clearButton")
+            errorDiv = document.getElementById("error")
+            textArea = document.getElementById("text")
+            myDiagram = init(document.getElementById("myDiagramDiv"))
             window.initDiv = undefined
-            load()
+
+            textArea.value = load(buttons)
+            convert()
         }
         
     </script>
@@ -201,7 +135,7 @@
                 </nav>
             </header>
             <main class="flex-row-content">
-                <textarea onkeyup="enableSave()" onChange="enableSave()" placeholder="Text UML here..." id="text" class="code flex-column col-1"></textarea>
+                <textarea placeholder="Text UML here..." id="text" class="code flex-column col-1"></textarea>
                 <div id="myDiagramDiv" class="flex-column col-2"></div>
             </main>
         </div>
