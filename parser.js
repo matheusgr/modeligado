@@ -149,12 +149,17 @@ class Extractor {
         return this._prepareRelation(relation, types)
     }
 
+    _splitAndAppend(str, delim, count) {
+        const arr = str.split(delim);
+        return [...arr.splice(0, count), arr.join(delim)];
+    }
+
     extractAttr(line) {
         if (line.indexOf('(') != -1 || line.indexOf(')') != -1) {
             throw new ParseError(this.lineNumber, "Unknow attr format " + line)
         }
-        const split = line.split(" ").map(x => x.trim())
-        if (split.length != 3) {
+        const split = this._splitAndAppend(line, " ", 2).map(x => x.trim())
+        if (split.length < 3) {
             throw new ParseError(this.lineNumber, "Unknow attr format " + line)
         }
         const visibility = this._convertVisibility(split[0])
