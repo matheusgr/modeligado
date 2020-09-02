@@ -11,7 +11,7 @@ Nomeavel <Interface>  // bem como comentarios no meio de uma linha
 
 Identificavel <Interface>
 // classes ausentes na descrição textual mas usadas em relações aparecem no diagrama, como é o caso de Testavel
-implements Testavel
+extends Testavel
 ---
 ---
 + getId(): int
