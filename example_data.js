@@ -1,60 +1,72 @@
 export function exampleData() {
     return `// diagrama de classes de exemplo
-// linhas com // são ignoradas
+// duas barras definem comentários
 
-Nomeavel <Interface>  // bem como comentarios no meio de uma linha
----
----
-+ getNome(): str
----
-
-
-Identificavel <Interface>
-// classes ausentes na descrição textual mas usadas em relações aparecem no diagrama, como é o caso de Testavel
-extends Testavel
----
----
-+ getId(): int
----
-
-Aluno
-extends Pessoa
-implements Nomeavel <Interface>, Identificavel <Interface>
----
-- turmas: List<Turma>
-- nome: str
-- nasc: int
----
-+ Aluno(nome: str)
-+ Aluno(nome: str, nasc: int)
-+ setNome(nome: str): void
-+ getNome(): str
-+ getId(): int
----
-
-Pessoa
----
-- cpf: str
----
----
-
-Turma
-aggregates Aluno
----
-- cod: int
----
----
-
-Universidade
-composes Departamento
+Main
+association UsuarioController
+association SistemaController // A ser implementado depois
 ---
 ---
 ---
 
-Departamento
-association Turma
+UsuarioController
+composes UsuarioRepository // Outro tipo de associação: Aggregates
 ---
-- cod: int
+- usuarioRepository: UsuarioRepository
 ---
++ UsuarioController()
++ adicionaTrabalhador(nome: str, code: int): void
++ adicionaAssociado(nome: str, code: int, empresa: str): void
++ localizaUsuarios(nome: str): List<String>
++ localizaUsuario(code: int): Usuario
++ adicionaBonus(code: int, bonus: int): void
++ totalizaBonus(code: int): int
+---
+
+UsuarioRepository
+composes Usuario <Interface>
+---
+- usuarios: Map<id, Usuario>
+---
++ UsuarioRepository()
++ adicionaTrabalhador(nome: str, code: int): void
++ adicionaAssociado(nome: str, code: int, empresa: str): void
++ localizaUsuarios(nome: str): List<String>
++ localizaUsuario(code: int): Usuario
+---
+
+Usuario <Interface>
+---
+---
++ addBonus(bonus: int): void
++ totalizaBonus(): int
+---
+
+UsuarioImpl <Abstract>
+implements Usuario <Interface>
+---
+- code: int
+---
++ UsuarioImpl(nome: str, code: int)
++ adicionaBonus(code: int, bonus: int): void
++ totalizaBonus(code: int): int
++ hashCode(): int
++ equals(o: Object): boolean
+---
+
+Trabalhador
+extends UsuarioImpl <Abstract>
+---
+---
++ toString(): str
+---
+
+Associado
+extends UsuarioImpl <Abstract>
+---
+- empresa: str
+---
++ Associado(nome: str, code: int, empresa: str)
++ toString(): str
 ---`
 }
