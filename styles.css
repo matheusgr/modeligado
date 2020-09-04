@@ -166,4 +166,13 @@ main * {
         flex-direction: row;
     }
 
+
   }
+@media (max-width: 830px) {
+  .top-header {
+    height: 3em;     
+  }
+  nav {
+    height: 5em;
+  }
+}
