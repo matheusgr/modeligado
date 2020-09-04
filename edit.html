@@ -2,7 +2,11 @@
 
 <head>
     <meta charset="UTF-8">
+    <meta name="keywords" content="UML, TXT, Java">
+    <meta name="description" content="Convert TXT to UML">
+    <meta name="author" content="Matheus Gaudencio">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Modeligado - Text to UML</title>
     <link rel="stylesheet" href="normalize.css">
     <link rel="stylesheet" href="styles.css">
     <link href="https://fonts.googleapis.com/css2?family=Russo+One&display=swap" rel="stylesheet">
@@ -26,18 +30,13 @@
     <script type="module">
         import {init, create} from "./gojs.js"
         import {parse, exportPng, exportJava} from "./modeligado.js"
-        import {load, clear, save} from "./modeligado_storage.js"
+        import {load, loadExample, save} from "./modeligado_storage.js"
 
         let autoUpdate = true
         let myDiagram = null
         let timeout = null
-        let buttons = {}
         let errorDiv = null
         let textArea = null
-
-        window.loadLocal = () => { textArea.value = load(buttons); window.convert() }
-        window.saveLocal = () => save(textArea.value, buttons)
-        window.clearLocal = () => clear(buttons)
 
         window.enableAutoUpdate = function() {
             if (autoUpdate) {
@@ -58,7 +57,6 @@
                 window.convert();
                 return false;
             }
-            buttons.save.disabled = false
             if (!autoUpdate) {
                 return true;
             }
@@ -83,24 +81,23 @@
                 errorDiv.textContent = err.message
                 return;
             }
+            window.saveLocal()
             create(myDiagram, nodeName, linkData)
         }
 
         window.convert = () => {convert(); saveLocal()}
+        window.saveLocal = () => save(textArea.value)
+        window.loadExample = () => {textArea.value = loadExample(); convert()}
+        window.load = () => {textArea.value = load(); convert()}
         window.exportPng = () => {exportPng(myDiagram, "uml.png")}
         window.exportJava = () => {exportJava(textArea.value, 'project.zip')}
 
         window.initDiv = function() {
-            buttons['save'] = document.getElementById("saveButton")
-            buttons['load'] = document.getElementById("loadButton")
-            buttons['clear'] = document.getElementById("clearButton")
             errorDiv = document.getElementById("error")
             textArea = document.getElementById("text")
             myDiagram = init(document.getElementById("myDiagramDiv"))
             window.initDiv = undefined
-
-            textArea.value = load(buttons)
-            convert()
+            window.load()
         }
         
     </script>
@@ -129,12 +126,10 @@
                     </div>
                 
                     <div class="menu">
-                        <button class="nav-button" onClick="convert()">Save and Create UML (F2)</button>
+                        <button class="nav-button" onClick="convert()">UML (F2)</button>
                         <button class="nav-button" onClick="exportPng()">Export PNG</button>
                         <button class="nav-button" onClick="exportJava()">Export Java</button>
-                        <button class="nav-button" id="loadButton" onClick="loadLocal()">Load Text</button>
-                        <button class="nav-button" id="saveButton" onClick="saveLocal()">Save Text</button>
-                        <button class="nav-button" id="clearButton" onClick="clearLocal()">Clear Storage</button>
+                        <button class="nav-button" id="loadButton" onClick="loadExample()">Load Example</button>
                     </div>
                 </nav>
             </header>
