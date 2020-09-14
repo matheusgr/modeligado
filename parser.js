@@ -25,7 +25,7 @@ class State {
     // --- CHECKS ---
     _check(expectedState) {
         if (this.state !== expectedState) {
-            throw new ParseError(this.lineNumber, "Expecting internal state '" + expectedState + "'.")
+            throw new ParseError(this.lineNumber, "Expecting internal state '" + expectedState + "' it was '" + this.state + "'.")
         }
     }
 
@@ -288,6 +288,7 @@ class Parser {
             }
             this._extractData(state, extractor, line)
         }
+        state._check("ROOT")
         return classes
     }
 
