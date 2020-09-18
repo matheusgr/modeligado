@@ -58,6 +58,11 @@ function exportPng(myDiagram, filename) {
     } })
 }
 
+function exportTxt(text, filename) {
+    _saveAs(new Blob([text], {
+        type: 'text/plain'
+    }), filename)
+}
 
 function exportJava(umlText, filename) {
     let zip = new JSZip();
@@ -76,4 +81,4 @@ function exportJava(umlText, filename) {
 
 }
 
-export {parse, exportPng, exportJava}
+export {parse, exportPng, exportTxt, exportJava}

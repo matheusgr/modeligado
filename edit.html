@@ -29,7 +29,7 @@
 
     <script type="module">
         import {init, create} from "./gojs.js"
-        import {parse, exportPng, exportJava} from "./modeligado.js"
+        import {parse, exportPng, exportTxt, exportJava} from "./modeligado.js"
         import {load, loadExample, save} from "./modeligado_storage.js"
 
         let autoUpdate = true
@@ -90,6 +90,7 @@
         window.loadExample = () => {textArea.value = loadExample(); convert()}
         window.load = () => {textArea.value = load(); convert()}
         window.exportPng = () => {exportPng(myDiagram, "uml.png")}
+        window.exportTxt = () => {exportTxt(textArea.value, "uml.txt")}
         window.exportJava = () => {exportJava(textArea.value, 'project.zip')}
 
         window.initDiv = function() {
@@ -127,8 +128,9 @@
                 
                     <div class="menu">
                         <button class="nav-button" onClick="convert()">UML (F2)</button>
-                        <button class="nav-button" onClick="exportPng()">Export PNG</button>
-                        <button class="nav-button" onClick="exportJava()">Export Java</button>
+                        <button class="nav-button" onClick="exportTxt()">TXT</button>
+                        <button class="nav-button" onClick="exportPng()">PNG</button>
+                        <button class="nav-button" onClick="exportJava()">Java</button>
                         <button class="nav-button" id="loadButton" onClick="loadExample()">Load Example</button>
                     </div>
                 </nav>
