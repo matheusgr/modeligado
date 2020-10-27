@@ -119,6 +119,7 @@ class Extractor {
                                       "composes": ["composition", true],
                                       "aggregates": ["aggregation", true]
                             }
+        this.modifier = 'static'
     }
 
     setLine(lineNumber) {
@@ -154,21 +155,37 @@ class Extractor {
         return [...arr.splice(0, count), arr.join(delim)];
     }
 
+    _correctModifier(line){
+        const arr = this._splitAndAppend(line, " ", 3).map(x => x.trim())
+        // arr[3] === "" if no modifier, non-static attr
+        if(arr[3]){
+            if (arr[1] === this.modifier){
+                arr[1] = 'class'    // go.js standard for static
+            } else {
+                throw new ParseError(this.lineNumber, "Unknow attr modifier " + line);
+            }
+            arr.push(arr.splice(1,1)[0])
+        }
+        return arr
+    }
+
     extractAttr(line) {
         if (line.indexOf('(') != -1 || line.indexOf(')') != -1) {
             throw new ParseError(this.lineNumber, "Unknow attr format " + line)
         }
-        const split = this._splitAndAppend(line, " ", 2).map(x => x.trim())
+        const split = this._correctModifier(line)
+
         if (split.length < 3) {
             throw new ParseError(this.lineNumber, "Unknow attr format " + line)
         }
         const visibility = this._convertVisibility(split[0])
         const name = split[1].substring(0, split[1].length - 1)
         const type = split[2]
+        const scope = split[3]
         if (!name || !type) {
             throw new ParseError(this.lineNumber, "Unknow attr format " + line)
         }
-        return {'name': name, 'type': type, 'visibility': visibility}
+        return {'name': name, 'scope': scope, 'type': type, 'visibility': visibility}
     }
 
     extractParameters(params) {
@@ -207,8 +224,11 @@ class Extractor {
     extractMethod(line) {
         const visibilityStr = line.split(" ", 1)[0]
         let result = {'visibility': this._convertVisibility(visibilityStr.trim())}
+        
+        const modifier = line.split(" ", 2)[1]
+        if(modifier === this.modifier){result.scope = 'class'}
 
-        const signature = line.substring(visibilityStr.length).trim()
+        const signature = line.substring(visibilityStr.length + (!result.scope?0:7)).trim()
 
         result.name = signature.substring(0, signature.indexOf('('))
 
