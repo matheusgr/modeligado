@@ -119,7 +119,7 @@ class Extractor {
                                       "composes": ["composition", true],
                                       "aggregates": ["aggregation", true]
                             }
-        this.modifier = 'static'
+        this.modifier = {"static": "class"}
     }
 
     setLine(lineNumber) {
@@ -152,21 +152,23 @@ class Extractor {
 
     _splitAndAppend(str, delim, count) {
         const arr = str.split(delim);
-        return [...arr.splice(0, count), arr.join(delim)];
+        let ref = arr.splice(0, count)
+        return [...ref, arr.join(delim)]
     }
 
     _correctModifier(line){
-        const arr = this._splitAndAppend(line, " ", 3).map(x => x.trim())
-        // arr[3] === "" if no modifier, non-static attr
-        if(arr[3]){
-            if (arr[1] === this.modifier){
-                arr[1] = 'class'    // go.js standard for static
+        const base = line.split(":").map(x => x.trim())
+        const arr = base[0].split(/\s+/).map(x => x.trim())
+        if(arr[2]) {  // has modifier
+            if (arr[1] in this.modifier){
+                arr[1] = this.modifier[arr[1]]
             } else {
                 throw new ParseError(this.lineNumber, "Unknow attr modifier " + line);
             }
-            arr.push(arr.splice(1,1)[0])
+        } else {
+            arr.splice(1, 0, "")  // no modifier
         }
-        return arr
+        return [...arr, base[1]]
     }
 
     extractAttr(line) {
@@ -175,13 +177,13 @@ class Extractor {
         }
         const split = this._correctModifier(line)
 
-        if (split.length < 3) {
+        if (split.length != 4) {
             throw new ParseError(this.lineNumber, "Unknow attr format " + line)
         }
         const visibility = this._convertVisibility(split[0])
-        const name = split[1].substring(0, split[1].length - 1)
-        const type = split[2]
-        const scope = split[3]
+        const scope = split[1]
+        const name = split[2]
+        const type = split[3]
         if (!name || !type) {
             throw new ParseError(this.lineNumber, "Unknow attr format " + line)
         }
