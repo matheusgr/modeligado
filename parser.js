@@ -150,12 +150,6 @@ class Extractor {
         return this._prepareRelation(relation, types)
     }
 
-    _splitAndAppend(str, delim, count) {
-        const arr = str.split(delim);
-        let ref = arr.splice(0, count)
-        return [...ref, arr.join(delim)]
-    }
-
     _correctModifier(line){
         const base = line.split(":").map(x => x.trim())
         const arr = base[0].split(/\s+/).map(x => x.trim())
@@ -228,7 +222,7 @@ class Extractor {
         let result = {'visibility': this._convertVisibility(visibilityStr.trim())}
         
         const modifier = line.split(" ", 2)[1]
-        if(modifier === this.modifier){result.scope = 'class'}
+        if(modifier in this.modifier){result.scope = this.modifier[modifier]}
 
         const signature = line.substring(visibilityStr.length + (!result.scope?0:7)).trim()
 

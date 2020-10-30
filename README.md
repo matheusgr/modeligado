@@ -47,3 +47,8 @@ There are three types of visibilities that can be used on attributes and methods
 * private
 * public
 * protected
+
+### Modifier
+You can also define class scope attributes and methods by adding a static modifier after visibility:
+
+* static
