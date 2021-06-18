@@ -204,7 +204,6 @@ class Extractor {
     _getReturnType(state, signature, result, line) {
         // Not a constructor
         let methodName = signature.substring(0, signature.indexOf('(')).trim()
-        console.log(methodName, state.context['name'], signature)
         if (!state.context['name'].trim().startsWith(methodName)) {
             // has return type
             let signSplit = signature.substring(signature.indexOf(')')).split(':').map(x => x.trim())
