@@ -52,23 +52,6 @@
             autoUpdate = !autoUpdate
         }
 
-        window.onkeydown = function(e) {
-            if(e.which == 113) { //F2
-                window.convert();
-                return false;
-            }
-            if (!autoUpdate) {
-                return true;
-            }
-            if(timeout) {
-                clearTimeout(timeout);
-                timeout = null;
-            }
-            timeout = setTimeout(() => {
-                convert()
-            }, 2000)
-        }
-
         const convert = function() {
             let text = textArea.value
             let nodeName = []
@@ -96,6 +79,18 @@
         window.initDiv = function() {
             errorDiv = document.getElementById("error")
             textArea = document.getElementById("text")
+            textArea.oninput = (e) => {
+                if (!autoUpdate) {
+                    return true;
+                }
+                if(timeout) {
+                    clearTimeout(timeout);
+                    timeout = null;
+                }
+                timeout = setTimeout(() => {
+                    convert()
+                }, 2000)
+            }
             myDiagram = init(document.getElementById("myDiagramDiv"))
             window.initDiv = undefined
             window.load()
