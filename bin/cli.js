@@ -1,8 +1,6 @@
 import http from 'http'
-import statik from 'node-static'
-
-import pkg1 from 'puppeteer'
-const puppeteer = pkg1
+import serveHandler from 'serve-handler'
+import puppeteer from 'puppeteer'
 
 async function createUML(browser, code, fname) {
     const page = await browser.newPage()
@@ -31,10 +29,11 @@ const processFile = async () => {
   .pipe(csv.parse({
     from_line: 2
   }));
-  const file = new statik.Server('./..');
-  const server = http.createServer((request, response) => {
-    request.addListener('end', function () {file.serve(request, response)}).resume();
-  }).listen(8080);
+
+  const server = http.createServer((req, res) => serveHandler(req, res, {
+    public: '../' // folder of files to serve
+  })).listen(8080)
+
   const browser = await puppeteer.launch({"defaultViewport":{"width": 4000, "height": 2000}})
   for await (const record of parser) {
     await createUML(browser, record[1], record[0] + ".png")

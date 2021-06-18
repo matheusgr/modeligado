@@ -2,7 +2,7 @@
     "type": "module",
     "optionalDependencies": {
         "csv": "^5.3.2",
-        "node-static": "^0.7.9",
-        "puppeteer": "^10.0.0"
+        "puppeteer": "^10.0.0",
+        "serve-handler": "^6.1.3"
     }
 }
