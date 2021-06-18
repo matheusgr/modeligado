@@ -201,9 +201,11 @@ class Extractor {
         return resultParams
     }
 
-    _getReturnType(signature, result, line) {
+    _getReturnType(state, signature, result, line) {
         // Not a constructor
-        if (signature.substring(0, 1) !== signature.substring(0, 1).toUpperCase()) {
+        let methodName = signature.substring(0, signature.indexOf('(')).trim()
+        console.log(methodName, state.context['name'], signature)
+        if (!state.context['name'].trim().startsWith(methodName)) {
             // has return type
             let signSplit = signature.substring(signature.indexOf(')')).split(':').map(x => x.trim())
             if (signSplit.length < 2 || !signSplit[1]) {
@@ -217,7 +219,7 @@ class Extractor {
         }
     }
 
-    extractMethod(line) {
+    extractMethod(state, line) {
         const visibilityStr = line.split(" ", 1)[0]
         let result = {'visibility': this._convertVisibility(visibilityStr.trim())}
         
@@ -239,7 +241,7 @@ class Extractor {
             throw new ParseError(this.lineNumber, "Unknow method signature " + line)
         }
 
-        this._getReturnType(signature, result, line)
+        this._getReturnType(state, signature, result, line)
 
         return result
     }
@@ -275,7 +277,7 @@ class Parser {
         } else if (state.isAttr()) {
             state.addAttr(extractor.extractAttr(line))
         } else if (state.isMethod()) {
-            state.addMethod(extractor.extractMethod(line))
+            state.addMethod(extractor.extractMethod(state, line))
         }
     }
 
