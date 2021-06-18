@@ -12,21 +12,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Russo+One&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/gojs@2.1/release/go.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.5.0/jszip.min.js"></script>
-
-    <script>
-        TogetherJSConfig_hubBase = "https://togetherjs-hub.glitch.me/"
-    </script>
-
-    <script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
-
-    <script type="text/javascript">
-        function googleTranslateElementInit() {
-        new google.translate.TranslateElement({pageLanguage: 'en', layout: google.translate.TranslateElement.InlineLayout.SIMPLE}, 'google_translate_element');
-        }
-    </script>
     
-    <script src="https://togetherjs.com/togetherjs-min.js"></script>
-
     <script type="module">
         import {init, create} from "./gojs.js"
         import {parse, exportPng, exportTxt, exportJava} from "./modeligado.js"
@@ -105,15 +91,6 @@
             <header>
                 <div class="top-header">
                     <span class="logo">modeligado</span>
-
-                    <div class="config-page">
-                        <button id="start-togetherjs" type="button"
-                        onclick="TogetherJS(this); return false"
-                        data-end-togetherjs-html="End TogetherJS">
-                        Start TogetherJS
-                        </button>
-                        <div id="google_translate_element"></div>
-                    </div>
                 </div>
                 <nav>
                     <div class="menu">
