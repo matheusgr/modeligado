@@ -204,14 +204,14 @@ class Extractor {
                         return {
                             stringGenericType,
                             index: i,
-                            isGenericType: 0
+                            isGenericType: 1
                         }
                     }
                 }
                 return {
                     stringGenericType,
                     index: i,
-                    isGenericType: 1
+                    isGenericType: 0
                 }
             }
         }
@@ -240,17 +240,20 @@ class Extractor {
                 leftArrow = 1
             }
             if (leftArrow) {
-                refactorString += params[i]
-            }
-
-            if (params[i] === '>') {
-                leftArrow = 0
+                if (params[i] === ',') {
+                    refactorString += '|'
+                } else {
+                    if (params[i] !== undefined) {
+                        refactorString += params[i]
+                    }
+                }
             }
         }
         return refactorString
     }
 
     extractParameters(params) {
+        console.log(this._parseCommaToBar(params))
         let resultParams = []
         for (let param of this._parseCommaToBar(params).split('|').map(x => x.trim())) {
             let aval = param.split(':').map(x => x.trim())
