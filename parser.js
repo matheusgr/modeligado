@@ -184,9 +184,35 @@ class Extractor {
         return {'name': name, 'scope': scope, 'type': type, 'visibility': visibility}
     }
 
+    _parseCommaToBar(params) {
+        let refactorString = '';
+        let foundArrow = false;
+        for (let param of params) {
+            if (!foundArrow) {
+                if (param === ',') {
+                    refactorString += '|'
+                } else {
+                    refactorString += param
+                }
+            }
+            if (param === '<') {
+                foundArrow = true
+            }
+            if (foundArrow) {
+                if (param !== '<') {
+                    refactorString += param;
+                }
+            }
+            if (param === '>') {
+                foundArrow = false
+            }
+        }
+        return refactorString;
+    }
+
     extractParameters(params) {
         let resultParams = []
-        for (let param of params.split(',').map(x => x.trim())) {
+        for (let param of this._parseCommaToBar(params).split('|').map(x => x.trim())) {
             let aval = param.split(':').map(x => x.trim())
             if (aval.length != 2) {
                 throw new ParseError(this.lineNumber, "Unknow param format " + params)
