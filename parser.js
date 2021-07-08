@@ -184,30 +184,69 @@ class Extractor {
         return {'name': name, 'scope': scope, 'type': type, 'visibility': visibility}
     }
 
-    _parseCommaToBar(params) {
-        let refactorString = '';
-        let foundArrow = false;
-        for (let param of params) {
-            if (!foundArrow) {
-                if (param === ',') {
-                    refactorString += '|'
-                } else {
-                    refactorString += param
+    _isGenericType(string, index) {
+        let countLeftArrow = 0
+        let countRightArrow = 0
+
+        let stringGenericType = ''
+        for (let i = index; i < string.length; i++) {
+            stringGenericType += string[i]
+            if (string[i] === '<') {
+                countLeftArrow++
+            }
+            if (string[i] === '>') {
+                countRightArrow++
+            }
+            if (countLeftArrow === countRightArrow) {
+                for (let stringGenericTypeElement of stringGenericType) {
+                    if (stringGenericTypeElement === ',') {
+                        return {
+                            stringGenericType,
+                            index: i,
+                            isGenericType: 0
+                        }
+                    }
                 }
-            }
-            if (param === '<') {
-                foundArrow = true
-            }
-            if (foundArrow) {
-                if (param !== '<') {
-                    refactorString += param;
+                return {
+                    stringGenericType,
+                    index: i,
+                    isGenericType: 1
                 }
-            }
-            if (param === '>') {
-                foundArrow = false
             }
         }
-        return refactorString;
+    }
+
+    _parseCommaToBar(params) {
+        let refactorString = ''
+        let leftArrow = 0;
+
+        for (let i = 0; i < params.length; i++) {
+            if (!leftArrow) {
+                if (params[i] === ',') {
+                    refactorString += '|'
+                } else {
+                    if (params[i] !== '<') {
+                        refactorString += params[i]
+                    }
+                }
+            }
+            if (params[i] === '<') {
+                let objectGenericType = this._isGenericType(params, i)
+                if (objectGenericType.isGenericType) {
+                    refactorString += objectGenericType.stringGenericType
+                    i = objectGenericType.index + 1
+                }
+                leftArrow = 1
+            }
+            if (leftArrow) {
+                refactorString += params[i]
+            }
+
+            if (params[i] === '>') {
+                leftArrow = 0
+            }
+        }
+        return refactorString
     }
 
     extractParameters(params) {
