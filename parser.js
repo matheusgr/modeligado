@@ -252,7 +252,6 @@ class Extractor {
     }
 
     extractParameters(params) {
-        console.log(this._parseCommaToBar(params))
         let resultParams = []
         for (let param of this._parseCommaToBar(params).split('|').map(x => x.trim())) {
             let aval = param.split(':').map(x => x.trim())
