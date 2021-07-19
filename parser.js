@@ -117,7 +117,8 @@ class Extractor {
                                       "implements": ["generalizationInterface", false],
                                       "association": ["association", false],
                                       "composes": ["composition", true],
-                                      "aggregates": ["aggregation", true]
+                                      "aggregates": ["aggregation", true],
+                                      "DirectionalAssociation": ["DirectionalAssociation", false]
                             }
         this.modifier = {"static": "class"}
     }
@@ -147,6 +148,7 @@ class Extractor {
     extractRelation(line) {
         let relation = line.split(" ")[0].trim()
         let types = line.substring(relation.length + 1, line.length).split(',').map(x => x.trim())
+        console.log(relation)
         return this._prepareRelation(relation, types)
     }
 
