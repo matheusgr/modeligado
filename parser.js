@@ -148,7 +148,6 @@ class Extractor {
     extractRelation(line) {
         let relation = line.split(" ")[0].trim()
         let types = line.substring(relation.length + 1, line.length).split(',').map(x => x.trim())
-        console.log(relation)
         return this._prepareRelation(relation, types)
     }
 
