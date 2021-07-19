@@ -118,7 +118,7 @@ class Extractor {
                                       "association": ["association", false],
                                       "composes": ["composition", true],
                                       "aggregates": ["aggregation", true],
-                                      "DirectionalAssociation": ["DirectionalAssociation", false]
+                                      "directionalAssociation": ["directionalAssociation", false]
                             }
         this.modifier = {"static": "class"}
     }
