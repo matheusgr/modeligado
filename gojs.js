@@ -154,6 +154,7 @@ function init(div) {
         case "generalizationInterface": return "Triangle";
         case "aggregation": return "StretchedDiamond";
         case "composition": return "StretchedDiamond";
+        case "DirectionalAssociation": return "OpenTriangle";
         case "association": return "";
         default: return "";
       }

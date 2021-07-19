@@ -1,6 +1,6 @@
 # Modeligado
 
-Convert text to UML. [Access here](https://matheusgr.github.io/modeligado/edit.html)!
+Convert text to UML. [Access here](https://mluizamarinho.github.io/modeligado/edit.html)!
 
 ## Example
 
@@ -38,6 +38,7 @@ There are five types of relationships among classes:
 * extends
 * implements
 * association
+* DirectionalAssociation
 * composes
 * aggregates
 
