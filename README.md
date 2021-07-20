@@ -38,7 +38,7 @@ There are five types of relationships among classes:
 * extends
 * implements
 * association
-* DirectionalAssociation
+* directionalAssociation
 * composes
 * aggregates
 
