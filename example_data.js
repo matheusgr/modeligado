@@ -4,7 +4,7 @@ export function exampleData() {
 
 Main
 association UsuarioController
-association SistemaController // A ser implementado depois
+directionalAssociation SistemaController // A ser implementado depois
 ---
 ---
 ---
