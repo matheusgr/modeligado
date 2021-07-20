@@ -185,9 +185,76 @@ class Extractor {
         return {'name': name, 'scope': scope, 'type': type, 'visibility': visibility}
     }
 
+    _isGenericType(string, index) {
+        let countLeftArrow = 0
+        let countRightArrow = 0
+
+        let stringGenericType = ''
+        for (let i = index; i < string.length; i++) {
+            stringGenericType += string[i]
+            if (string[i] === '<') {
+                countLeftArrow++
+            }
+            if (string[i] === '>') {
+                countRightArrow++
+            }
+            if (countLeftArrow === countRightArrow) {
+                for (let stringGenericTypeElement of stringGenericType) {
+                    if (stringGenericTypeElement === ',') {
+                        return {
+                            stringGenericType,
+                            index: i,
+                            isGenericType: 1
+                        }
+                    }
+                }
+                return {
+                    stringGenericType,
+                    index: i,
+                    isGenericType: 0
+                }
+            }
+        }
+    }
+
+    _parseCommaToBar(params) {
+        let refactorString = ''
+        let leftArrow = 0;
+
+        for (let i = 0; i < params.length; i++) {
+            if (!leftArrow) {
+                if (params[i] === ',') {
+                    refactorString += '|'
+                } else {
+                    if (params[i] !== '<') {
+                        refactorString += params[i]
+                    }
+                }
+            }
+            if (params[i] === '<') {
+                let objectGenericType = this._isGenericType(params, i)
+                if (objectGenericType.isGenericType) {
+                    refactorString += objectGenericType.stringGenericType
+                    i = objectGenericType.index + 1
+                }
+                leftArrow = 1
+            }
+            if (leftArrow) {
+                if (params[i] === ',') {
+                    refactorString += '|'
+                } else {
+                    if (params[i] !== undefined) {
+                        refactorString += params[i]
+                    }
+                }
+            }
+        }
+        return refactorString
+    }
+
     extractParameters(params) {
         let resultParams = []
-        for (let param of params.split(',').map(x => x.trim())) {
+        for (let param of this._parseCommaToBar(params).split('|').map(x => x.trim())) {
             let aval = param.split(':').map(x => x.trim())
             if (aval.length != 2) {
                 throw new ParseError(this.lineNumber, "Unknow param format " + params)
