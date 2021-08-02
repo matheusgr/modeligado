@@ -184,33 +184,62 @@ class Extractor {
         return {'name': name, 'scope': scope, 'type': type, 'visibility': visibility}
     }
 
-    _isGenericType(string, index) {
-        let countLeftArrow = 0
-        let countRightArrow = 0
+    _semanticAnalysisGenericType(stringGenericType) {
+        let countLeftArrow = 0;
+        let countRightArrow = 0;
 
+        for (let stringGenericTypeElement of stringGenericType) {
+            if (stringGenericTypeElement === '<') {
+                countLeftArrow++;
+            }
+            if (stringGenericTypeElement === '>') {
+                countRightArrow++
+            }
+        }
+        if (countLeftArrow === (countRightArrow + 1)) {
+            throw new ParseError(this.lineNumber, "missing ending '>'")
+        }
+        if (countRightArrow > (countLeftArrow + 2)) {
+            throw new ParseError(this.lineNumber, "unbalanced or strange char (\">\")")
+        }
+        if (countRightArrow > countLeftArrow) {
+            throw new ParseError(this.lineNumber, "unbalanced or strange char (\">\")")
+        }
+    }
+
+    _isGenericType(string, index) {
+        let countLeftArrow = 0;
+        let countRightArrow = 0;
         let stringGenericType = ''
+
         for (let i = index; i < string.length; i++) {
             stringGenericType += string[i]
             if (string[i] === '<') {
-                countLeftArrow++
+                countLeftArrow++;
             }
+            let indexHook = -3;
             if (string[i] === '>') {
                 countRightArrow++
-            }
-            if (countLeftArrow === countRightArrow) {
-                for (let stringGenericTypeElement of stringGenericType) {
-                    if (stringGenericTypeElement === ',') {
-                        return {
-                            stringGenericType,
-                            index: i,
-                            isGenericType: 1
+                if (string[i + 1] === '>') {
+                    for (let j = 1; j < countLeftArrow + 3; j++) {
+                        if (string[i + j] === '>') {
+                            stringGenericType += string[i + j]
+                            indexHook += j;
+                        } else {
+                            this._semanticAnalysisGenericType(stringGenericType)
+                            i = i + indexHook
+                            return {
+                                stringGenericType,
+                                index: i,
+                            }
                         }
                     }
                 }
+            }
+            if (countLeftArrow === 1 && countRightArrow === 1) {
                 return {
                     stringGenericType,
                     index: i,
-                    isGenericType: 0
                 }
             }
         }
@@ -231,11 +260,9 @@ class Extractor {
                 }
             }
             if (params[i] === '<') {
-                let objectGenericType = this._isGenericType(params, i)
-                if (objectGenericType.isGenericType) {
-                    refactorString += objectGenericType.stringGenericType
-                    i = objectGenericType.index + 1
-                }
+                const objectGenericType = this._isGenericType(params, i)
+                refactorString += objectGenericType.stringGenericType
+                i = objectGenericType.index + 1
                 leftArrow = 1
             }
             if (leftArrow) {
