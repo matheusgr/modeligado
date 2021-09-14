@@ -53,3 +53,12 @@ There are three types of visibilities that can be used on attributes and methods
 You can also define class scope attributes and methods by adding a static modifier after visibility:
 
 * static
+
+## Run in your machine
+
+Use any HTTP server to run modeligado in your computer:
+
+- javascript: [serve](https://www.npmjs.com/package/serve)
+- python: `python -m http.server 5000`
+
+Then go to http://localhost:5000 (change the port 5000 if needed)
