@@ -61,4 +61,4 @@ Use any HTTP server to run modeligado in your computer:
 - javascript: [serve](https://www.npmjs.com/package/serve)
 - python: `python -m http.server 5000`
 
-Then go to http://localhost:5000 (change the port 5000 if needed)
+Then go to http://localhost:5000/edit.html (change the port 5000 if needed)
