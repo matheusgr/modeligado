@@ -43,6 +43,7 @@ class State {
         this.relations = []
         this.relates = new Set()
         this.state = "CLASS"
+        this.className = name;
     }
 
     addClassRelation(relatedClass, relation, inverse) {
@@ -369,9 +370,9 @@ class Parser {
                 state.addClassRelation(class_, relationships.relation, relationships.inverse)
             }
         } else if (state.isAttr()) {
-            state.addAttr(extractor.extractAttr(line))
+            state.addAttr({"className": state.className, ...extractor.extractAttr(line)})
         } else if (state.isMethod()) {
-            state.addMethod(extractor.extractMethod(state, line))
+            state.addMethod({"className": state.className, ...extractor.extractMethod(state, line)})
         }
     }
 

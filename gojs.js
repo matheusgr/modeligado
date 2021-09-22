@@ -1,7 +1,33 @@
+class ClickHistory {
+  constructor() {
+    this.history = [];
+    this.highlights = [];
+  }
+
+  /*
+  data = data object
+  obj = TextBlock to highlight
+  */
+  addHistory(data, obj) {
+    this.history.unshift([data, obj]);
+    this.highlights.unshift([data, obj])
+    if (this.highlights.length === 4) {
+      this.highlights.pop()[1].stroke = "black";
+    }
+    let i = 250
+    for (let e of this.highlights) {
+      const c = "rgb(" + i + ", " + (250 - (i/2)) + ", " + (250 - i) + ")"
+      e[1].stroke = c
+      i -= 75
+    }
+  }
+}
+
+
 // https://gojs.net/latest/samples/umlClass.html
 function init(div) {
     var $ = go.GraphObject.make;
-
+    const clickHistory = new ClickHistory()
     let myDiagram =
       $(go.Diagram, div,
         {
@@ -27,10 +53,23 @@ function init(div) {
         default: return v;
       }
     }
+    
+    function actionDownTemplate(level) {
+      return (e, btn) => {
+        if (!btn.isEnabledObject()) return;
+        if (e.button !== 0) return;
+        console.log(btn.data)  // Data clicked
+        var text = btn.elt(level) // TextBlockLevel for this entity
+        clickHistory.addHistory(btn.data, text)
+      }
+    }
 
     // the item template for properties
     var propertyTemplate =
       $(go.Panel, "Horizontal",
+        {
+          isActionable: true,  // needed so that the ActionTool intercepts mouse events}
+        },
         // property visibility/access
         $(go.TextBlock,
           { isMultiline: false, editable: false, width: 12 },
@@ -52,9 +91,14 @@ function init(div) {
           new go.Binding("text", "default", function (s) { return s ? " = " + s : ""; }))
       );
 
+    propertyTemplate.actionDown = actionDownTemplate(1);
+
     // the item template for methods
     var methodTemplate =
       $(go.Panel, "Horizontal",
+        {
+          isActionable: true,  // needed so that the ActionTool intercepts mouse events}
+        },
         // method visibility/access
         $(go.TextBlock,
           { isMultiline: false, editable: false, width: 12 },
@@ -83,7 +127,9 @@ function init(div) {
           { isMultiline: false, editable: true },
           new go.Binding("text", "type").makeTwoWay())
       );
-
+    
+    methodTemplate.actionDown = actionDownTemplate(1);
+    
     // this simple template does not have any buttons to permit adding or
     // removing properties or methods, but it could!
     myDiagram.nodeTemplate =
@@ -183,77 +229,7 @@ function init(div) {
     return myDiagram;
   }
 
-function create(myDiagram, nodedata, linkdata) {
-    // setup a few example class nodes and relationships
-    if (!nodedata) {
-        nodedata = [
-        {
-          key: 1,
-          name: "BankAccount",
-          properties: [
-            { name: "owner", type: "String", visibility: "public" },
-            { name: "balance", type: "Currency", visibility: "public", default: "0" }
-          ],
-          methods: [
-            { name: "deposit", parameters: [{ name: "amount", type: "Currency" }], visibility: "public" },
-            { name: "withdraw", parameters: [{ name: "amount", type: "Currency" }], visibility: "public" }
-          ]
-        },
-        {
-          key: 11,
-          name: "Person",
-          properties: [
-            { name: "name", type: "String", visibility: "public" },
-            { name: "birth", type: "Date", visibility: "protected" }
-          ],
-          methods: [
-            { name: "getCurrentAge", type: "int", visibility: "public" }
-          ]
-        },
-        {
-          key: 12,
-          name: "Student",
-          properties: [
-            { name: "classes", type: "List", visibility: "public" }
-          ],
-          methods: [
-            { name: "attend", parameters: [{ name: "class", type: "Course" }], visibility: "private" },
-            { name: "sleep", visibility: "private" }
-          ]
-        },
-        {
-          key: 13,
-          name: "Professor",
-          properties: [
-            { name: "classes", type: "List", visibility: "public" }
-          ],
-          methods: [
-            { name: "teach", parameters: [{ name: "class", type: "Course" }], visibility: "private" }
-          ]
-        },
-        {
-          key: 14,
-          name: "Course",
-          properties: [
-            { name: "name", type: "String", visibility: "public" },
-            { name: "description", type: "String", visibility: "public" },
-            { name: "professor", type: "Professor", visibility: "public" },
-            { name: "location", type: "String", visibility: "public" },
-            { name: "times", type: "List", visibility: "public" },
-            { name: "prerequisites", type: "List", visibility: "public" },
-            { name: "students", type: "List", visibility: "public" }
-          ]
-        }
-      ];
-    }
-
-    if (!linkdata) {
-      linkdata = [
-        { from: 12, to: 11, relationship: "generalization" },
-        { from: 13, to: 11, relationship: "generalization" },
-        { from: 14, to: 13, relationship: "aggregation" }
-      ];
-    }
+  function create(myDiagram, nodedata, linkdata) {
 
     var $ = go.GraphObject.make;
       myDiagram.model = $(go.GraphLinksModel,
