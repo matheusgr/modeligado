@@ -1,3 +1,5 @@
+/* global JSZip */
+
 import { Parser } from './parser.js'
 import { process } from './convert.js'
 

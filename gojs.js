@@ -1,3 +1,5 @@
+/* global go */
+
 class ClickHistory {
   constructor () {
     this.history = []
