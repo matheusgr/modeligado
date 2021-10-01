@@ -188,10 +188,7 @@ function init(div) {
     }
 
     function convertFromArrow(r) {
-      switch (r) {
-        case "generalization": return "";
-        default: return "";
-      }
+      return "";
     }
 
     function convertToArrow(r) {

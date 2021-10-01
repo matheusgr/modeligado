@@ -70,9 +70,8 @@ function exportJava(umlText, filename) {
     
     let result = process(new Parser().parse(umlText), "app")
     Object.keys(result).forEach(function(key) {
-        let filename = key
         let code = result[key]
-        folder.file(filename + ".java", code)
+        folder.file(key + ".java", code)
     });
     zip.generateAsync({type:"blob"})
     .then(function(content) {

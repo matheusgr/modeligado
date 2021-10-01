@@ -1,6 +1,11 @@
 import http from 'http'
 import serveHandler from 'serve-handler'
 import puppeteer from 'puppeteer'
+import pkg4 from 'csv'
+import {createReadStream} from 'fs'
+
+const csv = pkg4
+
 
 async function createUML(browser, code, fname) {
     const page = await browser.newPage()
@@ -18,10 +23,6 @@ async function createUML(browser, code, fname) {
     await page.close()
 }
 
-import pkg4 from 'csv';
-const csv = pkg4;
-
-import {createReadStream, writeFileSync} from 'fs'
 
 const processFile = async () => {
   let records = []
@@ -35,9 +36,11 @@ const processFile = async () => {
   })).listen(8080)
 
   const browser = await puppeteer.launch({"defaultViewport":{"width": 4000, "height": 2000}})
+
   for await (const record of parser) {
     await createUML(browser, record[1], record[0] + ".png")
   }
+  
   await browser.close()
   server.close()
   return records
