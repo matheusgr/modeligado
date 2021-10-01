@@ -380,10 +380,9 @@ class Parser {
       throw new ParseError(0, 'No text found.')
     }
 
-    for (let line of arrayOfLines.map(x => x.trim())) {
+    for (const line of arrayOfLines.map(x => extractor.removeComment(x.trim()))) {
       extractor.setLine(++lineNumber)
       state.setLine(lineNumber)
-      line = extractor.removeComment(line)
       if (line.startsWith('//') || !line) {
         continue
       }
