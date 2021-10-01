@@ -15,8 +15,9 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.5.0/jszip.min.js"></script>
     
     <script type="module">
-        import {init, create} from "./gojs.js"
+        import {init, create, ClickHistory} from "./gojs.js"
         import {parse, exportPng, exportSvg, exportTxt, exportJava} from "./modeligado.js"
+        import {clickControl} from "./flow.js"
         import {load, loadExample, save} from "./modeligado_storage.js"
 
         let autoUpdate = true
@@ -64,6 +65,8 @@
         window.exportTxt = () => {exportTxt(textArea.value, "uml.txt")}
         window.exportJava = () => {exportJava(textArea.value, 'project.zip')}
 
+        let clickHistory = new ClickHistory()
+
         window.initDiv = function() {
             errorDiv = document.getElementById("error")
             textArea = document.getElementById("text")
@@ -79,7 +82,8 @@
                     convert()
                 }, 2000)
             }
-            myDiagram = init(document.getElementById("myDiagramDiv"))
+            myDiagram = init(document.getElementById("myDiagramDiv"), clickHistory)
+            clickControl(document.getElementById("flowDiv"), clickHistory)
             window.initDiv = undefined
             window.load()
         }

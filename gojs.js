@@ -4,6 +4,11 @@ class ClickHistory {
   constructor () {
     this.history = []
     this.highlights = []
+    this.callbacks = []
+  }
+
+  subscribe (callback) {
+    this.callbacks.push(callback)
   }
 
   /*
@@ -11,6 +16,9 @@ class ClickHistory {
   obj = TextBlock to highlight
   */
   addHistory (data, obj) {
+    for (const cb of this.callbacks) {
+      cb(data, obj)
+    }
     this.history.unshift([data, obj])
     this.highlights.unshift([data, obj])
     if (this.highlights.length === 4) {
@@ -26,9 +34,8 @@ class ClickHistory {
 }
 
 // https://gojs.net/latest/samples/umlClass.html
-function init (div) {
+function init (div, clickHistory) {
   const $ = go.GraphObject.make
-  const clickHistory = new ClickHistory()
   const myDiagram =
       $(go.Diagram, div,
         {
@@ -250,4 +257,4 @@ function create (myDiagram, nodedata, linkdata) {
     })
 }
 
-export { init, create }
+export { init, create, ClickHistory }
