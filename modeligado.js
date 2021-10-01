@@ -78,9 +78,19 @@ function exportTxt (text, filename) {
   }), filename)
 }
 
-function exportJava (umlText, filename) {
-  const zip = new JSZip()
-  const folder = zip.folder('app')
+function exportJava(umlText, filename) {
+    let zip = new JSZip();
+    let folder = zip.folder("app")
+    
+    let result = process(new Parser().parse(umlText), "app")
+    Object.keys(result).forEach(function(key) {
+        let code = result[key]
+        folder.file(key + ".java", code)
+    });
+    zip.generateAsync({type:"blob"})
+    .then(function(content) {
+        _saveAs(content, filename);
+    });
 
   const result = process(new Parser().parse(umlText), 'app')
   Object.keys(result).forEach(function (key) {

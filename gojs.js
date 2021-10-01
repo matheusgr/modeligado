@@ -205,9 +205,9 @@ function init (div, clickHistory) {
     return r && r.length > 0
   }
 
-  function convertFromArrow (r) {
-    return ''
-  }
+    function convertFromArrow(r) {
+      return "";
+    }
 
   function convertToArrow (r) {
     switch (r) {
