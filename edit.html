@@ -9,9 +9,13 @@
     <title>Modeligado - Text to UML</title>
     <link rel="stylesheet" href="normalize.css">
     <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.48.4/codemirror.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Russo+One&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.63.1/theme/eclipse.min.css">
     <script src="https://cdn.jsdelivr.net/npm/gojs@2.1/release/go.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.5.0/jszip.min.js"></script>
+    <script src= "https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.48.4/codemirror.js"></script>
+    <script src= "https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.48.4/mode/javascript/javascript.js"></script>
     
     <script type="module">
         import {init, create} from "./gojs.js"
@@ -23,6 +27,7 @@
         let timeout = null
         let errorDiv = null
         let textArea = null
+        let codemirrorEditor = null
 
         window.enableAutoUpdate = function() {
             if (autoUpdate) {
@@ -39,7 +44,7 @@
         }
 
         const convert = function() {
-            let text = textArea.value
+            let text = codemirrorEditor.getValue()
             let nodeName = []
             let linkData = []
             try {
@@ -55,17 +60,27 @@
         }
 
         window.convert = () => {convert(); saveLocal()}
-        window.saveLocal = () => save(textArea.value)
-        window.loadExample = () => {textArea.value = loadExample(); convert()}
-        window.load = () => {textArea.value = load(); convert()}
+        window.saveLocal = () => save(codemirrorEditor.getValue())
+        window.loadExample = () => {codemirrorEditor.setValue(loadExample()); convert()}
+        window.load = () => {codemirrorEditor.setValue(load()); convert()}
         window.exportPng = () => {exportPng(myDiagram, "uml.png")}
-        window.exportTxt = () => {exportTxt(textArea.value, "uml.txt")}
-        window.exportJava = () => {exportJava(textArea.value, 'project.zip')}
-
+        window.exportTxt = () => {exportTxt(codemirrorEditor.getValue(), "uml.txt")}
+        window.exportJava = () => {exportJava(codemirrorEditor.getValue(), 'project.zip')}
+        
         window.initDiv = function() {
             errorDiv = document.getElementById("error")
             textArea = document.getElementById("text")
-            textArea.oninput = (e) => {
+            
+            codemirrorEditor = CodeMirror.fromTextArea(textArea, {
+                value: loadExample(),
+                lineNumbers: true,
+                lineWrapping: true,
+                theme: "eclipse"
+            })
+
+            codemirrorEditor.setValue(loadExample())
+            
+            codemirrorEditor.on('change',  (e) => {
                 if (!autoUpdate) {
                     return true;
                 }
@@ -76,12 +91,12 @@
                 timeout = setTimeout(() => {
                     convert()
                 }, 2000)
-            }
+            })
+
             myDiagram = init(document.getElementById("myDiagramDiv"))
             window.initDiv = undefined
             window.load()
         }
-        
     </script>
 </head>
 
@@ -108,7 +123,7 @@
                 </nav>
             </header>
             <main class="flex-row-content">
-                <textarea placeholder="Text UML here..." id="text" class="code flex-column col-1"></textarea>
+                <textarea oninput='' placeholder="Text UML here..." id="text" class="code flex-column col-1"></textarea>
                 <div id="myDiagramDiv" class="flex-column col-2"></div>
             </main>
         </div>
