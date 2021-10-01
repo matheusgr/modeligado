@@ -1,5 +1,5 @@
-export function exampleData() {
-    return `// diagrama de classes de exemplo
+export function exampleData () {
+  return `// diagrama de classes de exemplo
 // duas barras definem comentários
 
 Main
