@@ -34,8 +34,9 @@ class ClickHistory {
 }
 
 // https://gojs.net/latest/samples/umlClass.html
-function init (div, clickHistory) {
+function init (div) {
   const $ = go.GraphObject.make
+  const clickHistory = new ClickHistory()
   const myDiagram =
       $(go.Diagram, div,
         {
@@ -205,9 +206,9 @@ function init (div, clickHistory) {
     return r && r.length > 0
   }
 
-    function convertFromArrow(r) {
-      return "";
-    }
+  function convertFromArrow (r) {
+    return ''
+  }
 
   function convertToArrow (r) {
     switch (r) {
