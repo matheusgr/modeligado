@@ -1,4 +1,3 @@
-
 function extractParameters(parameters) {
     if (!parameters) {
         return ""
@@ -24,29 +23,96 @@ function processType(t) {
     return t
 }
 
+function extractProperty(prop, excludeType=false) {
+    let propVisibility = prop.visibility + " "
+    let propType = "";
+    if (!excludeType) {
+        propType = processType(prop.type) + " "
+    }
+    let propName = prop.name
+    return (propVisibility + propType + propName)
+}
+
+function extractMethods(methods, constructors, prop, isInterface) {
+    let parameters = prop.parameters
+    if (processType(prop.type)) {  // Method -- has return
+        let methodSign = extractProperty(prop) + "(" +  extractParameters(parameters) + ")"
+        if (isInterface) {
+            methodSign += ";\n"
+        } else {
+            methodSign += " {\n\n    }\n"
+        }
+        methods.push(methodSign)
+    } else { // Constructor
+        constructors.push(extractProperty(prop, true) + "(" +  extractParameters(parameters) + ") {\n\n    }\n")
+    }
+}
+
+function extractRelation(prop, implement) {
+    let extend = ""
+    let propTo = prop.to.split(" ", 1)
+    let propRelationship = prop.relationship
+    if (propRelationship === "generalization") {
+        extend += " extends " + propTo
+    }
+    if (propRelationship === "generalizationInterface") {
+        implement.push(propTo)
+    }
+    return extend
+}
+
+function extractClassSignature(qualifier) {
+    let classSign = "public "
+        if (qualifier === "<Interface>") {
+            classSign += "interface "
+        } else if (qualifier === "<Abstract>") {
+            classSign += "abstract class "
+        } else {
+            classSign += "class "
+        }
+    return classSign;
+}
+
+function generateSourceFile(package_, classSign, props, constructors, methods) {
+    let result = ""
+    
+    if (package_) {
+        result += "package " + package_ + ";\n\n"
+    }
+
+    result += classSign + " {\n"
+    
+    if (props.length > 0) {
+        result += "\n    " + props.join("\n    ") + "\n"
+    }
+
+    if (constructors.length > 0) {
+        result += "\n    " + constructors.join("\n    ")
+    }
+
+    if (methods.length > 0) {
+        result += "\n    " + methods.join("\n    ")
+    }
+    
+    result += "\n}"
+
+    return result
+}
+
 function process(parseData, package_) {
     let results = {}
     for (let class_ of parseData) {
         let context = class_.context
         let nameArray = context.name.split(" ")
         let fileName = nameArray[0]
-        const ident = "   "
 
         let qualifier = null
         if (nameArray.length > 1) {
             qualifier = nameArray[1]
         }
 
-        let classSign = "public "
-        let isInterface = false
-        if (qualifier === "<Interface>") {
-            classSign += "interface "
-            isInterface = true
-        } else if (qualifier === "<Abstract>") {
-            classSign += "abstract class "
-        } else {
-            classSign += "class "
-        }
+        let classSign = extractClassSignature(qualifier)
+        let isInterface = (qualifier === "<Interface>")
         
         classSign += fileName
         
@@ -56,49 +122,22 @@ function process(parseData, package_) {
         let implement = []
 
         for (let prop of context.properties) {
-            let propName = prop.name
-            let propType = processType(prop.type)
-            let propVisibility = prop.visibility
-            props.push(propVisibility + " " + propType + " " + propName + ";")
+            props.push(extractProperty(prop) +  ";")
         }
+
         for (let prop of context.methods) {
-            let propName = prop.name
-            let propType = processType(prop.type)
-            let propVisibility = prop.visibility
-            let parameters = prop.parameters
-            if (propType) {  // Method
-                let methodSign = propVisibility + " " + propType + " " + propName + "(" +  extractParameters(parameters) + ")"
-                if (isInterface) {
-                    methodSign += ";"
-                } else {
-                    methodSign += "{\n\n    }\n"
-                }
-                methods.push(methodSign)
-            } else { // Constructor
-                constructors.push(propVisibility + " " + propName + "(" +  extractParameters(parameters) + ") {\n\n   }\n")
-            }
+            extractMethods(methods, constructors, prop, isInterface)
         }
+
         for (let prop of class_.relations) {
-            let propTo = prop.to.split(" ", 1)
-            let propRelationship = prop.relationship
-            if (propRelationship === "generalization") {
-                classSign += " extends " + propTo
-            }
-            if (propRelationship === "generalizationInterface") {
-                implement.push(propTo)
-            }
+            classSign += extractRelation(prop, implement)
         }
+        
         if (implement.length > 0) {
             classSign += " implements " + implement.join(", ")
         }
-        classSign += " {"
-        
-        let result = ""
-        if (package_) {
-            result += "package " + package_ + ";\n\n"
-        }
-        result += classSign + "\n    " + props.join("\n    ") + "\n    " + constructors.join("\n    ") + "\n    " + methods.join("\n    ") + "\n}"
-        results[fileName] = result
+
+        results[fileName] = generateSourceFile(package_, classSign, props, constructors, methods)
     }
     return results
 }
