@@ -34,9 +34,8 @@ class ClickHistory {
 }
 
 // https://gojs.net/latest/samples/umlClass.html
-function init (div) {
+function init (div, clickHistory) {
   const $ = go.GraphObject.make
-  const clickHistory = new ClickHistory()
   const myDiagram =
       $(go.Diagram, div,
         {
