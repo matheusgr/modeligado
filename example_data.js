@@ -46,6 +46,7 @@ UsuarioImpl <Abstract>
 implements Usuario <Interface>
 ---
 - code: int
+- nome: str
 ---
 + UsuarioImpl(nome: str, code: int)
 + adicionaBonus(code: int, bonus: int): void
