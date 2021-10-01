@@ -28,7 +28,7 @@ class State {
   }
 
   _notExecuted (state, property) {
-    if (this.context && this.context.hasOwnProperty(property)) {
+    if (this.context && Object.prototype.hasOwnProperty.call(this.context, property)) {
       throw new ParseError(this.lineNumber, "State was already executed: '" + state + "'.")
     }
   }
@@ -125,14 +125,14 @@ class Extractor {
   }
 
   _convertVisibility (vis) {
-    if (!this.conv.hasOwnProperty(vis)) {
+    if (!Object.prototype.hasOwnProperty.call(this.conv, vis)) {
       throw new ParseError(this.lineNumber, 'Unknow visibility: ' + vis)
     }
     return this.conv[vis]
   }
 
   _prepareRelation (relation, types) {
-    if (!this.relations.hasOwnProperty(relation)) {
+    if (!Object.prototype.hasOwnProperty.call(this.relations, relation)) {
       throw new ParseError(this.lineNumber, 'Unknow relation: ' + relation)
     }
     return { relation: this.relations[relation][0], types: types, inverse: this.relations[relation][1] }
@@ -164,12 +164,12 @@ class Extractor {
   }
 
   extractAttr (line) {
-    if (line.indexOf('(') != -1 || line.indexOf(')') != -1) {
+    if (line.indexOf('(') !== -1 || line.indexOf(')') !== -1) {
       throw new ParseError(this.lineNumber, 'Unknow attr format ' + line)
     }
     const split = this._correctModifier(line)
 
-    if (split.length != 4) {
+    if (split.length !== 4) {
       throw new ParseError(this.lineNumber, 'Unknow attr format ' + line)
     }
     const visibility = this._convertVisibility(split[0])
@@ -225,10 +225,9 @@ class Extractor {
               indexHook += j
             } else {
               this._semanticAnalysisGenericType(stringGenericType)
-              i = i + indexHook
               return {
                 stringGenericType,
-                index: i
+                index: i + indexHook
               }
             }
           }
@@ -280,7 +279,7 @@ class Extractor {
     const resultParams = []
     for (const param of this._parseCommaToBar(params).split('|').map(x => x.trim())) {
       const aval = param.split(':').map(x => x.trim())
-      if (aval.length != 2) {
+      if (aval.length !== 2) {
         throw new ParseError(this.lineNumber, 'Unknow param format ' + params)
       }
       const name = aval[0]
@@ -304,7 +303,7 @@ class Extractor {
       }
       result.type = signSplit[1].trim()
     } else {
-      if (signature.substring(signature.indexOf(')')).indexOf(':') != -1) {
+      if (signature.substring(signature.indexOf(')')).indexOf(':') !== -1) {
         throw new ParseError(this.lineNumber, 'Constructor should not have return type ' + line)
       }
     }

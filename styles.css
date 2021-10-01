@@ -1,3 +1,6 @@
+html {
+    height: 100%;
+}
 body {
     --background-header: #303641;
     --background-main: #373d47;
@@ -7,6 +10,7 @@ body {
     
     font-family: 'Lato', sans-serif;
     font-weight: 400;
+    height: 100%;
 }
 
 .flex-container {
