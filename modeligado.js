@@ -1,4 +1,4 @@
-/* global JSZip */
+/* global go,JSZip */
 
 import { Parser } from './parser.js'
 import { process } from './convert.js'
@@ -54,13 +54,22 @@ function _saveAs (blob, filename) {
 // https://gojs.net/latest/samples/minimalBlob.html
 function exportPng (myDiagram, filename) {
   myDiagram.makeImageData({
-    size: myDiagram.documentBounds,
+    type: 'image/png',
+    size: new go.Size(Math.min(2000, myDiagram.documentBounds.width), Math.min(2000, myDiagram.documentBounds.height)),
     background: 'white',
     returnType: 'blob',
     callback: (blob) => {
       _saveAs(blob, filename)
     }
   })
+}
+
+// https://github.com/NorthwoodsSoftware/GoJS/blob/master/samples/minimalSvg.html
+function exportSvg (myDiagram, filename) {
+  const svg = myDiagram.makeSvg({ scale: 1, background: 'white' })
+  const svgstr = new XMLSerializer().serializeToString(svg)
+  const blob = new Blob([svgstr], { type: 'image/svg+xml' })
+  _saveAs(blob, filename)
 }
 
 function exportTxt (text, filename) {
@@ -84,4 +93,4 @@ function exportJava (umlText, filename) {
     })
 }
 
-export { parse, exportPng, exportTxt, exportJava }
+export { parse, exportPng, exportSvg, exportTxt, exportJava }
