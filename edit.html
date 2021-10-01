@@ -68,10 +68,14 @@
         window.exportSvg = () => {exportSvg(myDiagram, "uml.svg")}
         window.exportTxt = () => {exportTxt(codemirrorEditor.getValue(), "uml.txt")}
         window.exportJava = () => {exportJava(codemirrorEditor.getValue(), 'project.zip')}
+<<<<<<< HEAD
         window.exportTxt = () => {exportTxt(textArea.value, "uml.txt")}
         window.exportJava = () => {exportJava(textArea.value, 'project.zip')}
 
         let clickHistory = new ClickHistory()
+=======
+        window.exportSvg = () => {exportSvg(myDiagram, "uml.svg")}
+>>>>>>> Fixed PNG image size and export SVG.
 
         window.initDiv = function() {
             errorDiv = document.getElementById("error")
