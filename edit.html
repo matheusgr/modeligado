@@ -1,4 +1,5 @@
-<html>
+<!DOCTYPE html>
+<html lang="en">
 
 <head>
     <meta charset="UTF-8">
@@ -18,8 +19,9 @@
     <script src= "https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.48.4/mode/javascript/javascript.js"></script>
     
     <script type="module">
-        import {init, create} from "./gojs.js"
-        import {parse, exportPng, exportTxt, exportJava} from "./modeligado.js"
+        import {init, create, ClickHistory} from "./gojs.js"
+        import {parse, exportPng, exportSvg, exportTxt, exportJava} from "./modeligado.js"
+        import {clickControl} from "./flow.js"
         import {load, loadExample, save} from "./modeligado_storage.js"
 
         let autoUpdate = true
@@ -64,9 +66,14 @@
         window.loadExample = () => {codemirrorEditor.setValue(loadExample()); convert()}
         window.load = () => {codemirrorEditor.setValue(load()); convert()}
         window.exportPng = () => {exportPng(myDiagram, "uml.png")}
+        window.exportSvg = () => {exportSvg(myDiagram, "uml.svg")}
         window.exportTxt = () => {exportTxt(codemirrorEditor.getValue(), "uml.txt")}
         window.exportJava = () => {exportJava(codemirrorEditor.getValue(), 'project.zip')}
-        
+        window.exportTxt = () => {exportTxt(textArea.value, "uml.txt")}
+        window.exportJava = () => {exportJava(textArea.value, 'project.zip')}
+
+        let clickHistory = new ClickHistory()
+
         window.initDiv = function() {
             errorDiv = document.getElementById("error")
             textArea = document.getElementById("text")
@@ -93,7 +100,9 @@
                 }, 2000)
             })
 
-            myDiagram = init(document.getElementById("myDiagramDiv"))
+            myDiagram = init(document.getElementById("myDiagramDiv"), clickHistory)
+            clickControl(document.getElementById("flowDiv"), clickHistory)
+
             window.initDiv = undefined
             window.load()
         }
@@ -117,6 +126,7 @@
                         <button class="nav-button" onClick="convert()">UML (F2)</button>
                         <button class="nav-button" onClick="exportTxt()">TXT</button>
                         <button class="nav-button" onClick="exportPng()">PNG</button>
+                        <button class="nav-button" onClick="exportSvg()">SVG</button>
                         <button class="nav-button" onClick="exportJava()">Java</button>
                         <button class="nav-button" id="loadButton" onClick="loadExample()">Load Example</button>
                     </div>

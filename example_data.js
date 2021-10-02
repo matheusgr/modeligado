@@ -1,5 +1,5 @@
-export function exampleData() {
-    return `// diagrama de classes de exemplo
+export function exampleData () {
+  return `// diagrama de classes de exemplo
 // duas barras definem comentários
 
 Main
@@ -46,6 +46,7 @@ UsuarioImpl <Abstract>
 implements Usuario <Interface>
 ---
 - code: int
+- nome: str
 ---
 + UsuarioImpl(nome: str, code: int)
 + adicionaBonus(code: int, bonus: int): void
