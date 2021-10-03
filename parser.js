@@ -375,10 +375,11 @@ class Parser {
     const extractor = new Extractor()
 
     const classes = []
-    const arrayOfLines = data.match(/[^\r\n]+/g)
-    if (!arrayOfLines) {
+    const arrayOfLines = data.split(/\r?\n/)
+    if (!arrayOfLines || !data.match(/[^\r\n]+/g)) {
       throw new ParseError(0, 'No text found.')
     }
+
 
     for (const line of arrayOfLines.map(x => extractor.removeComment(x.trim()))) {
       extractor.setLine(++lineNumber)
