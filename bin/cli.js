@@ -9,7 +9,9 @@ const csv = pkg4
 async function createUML (browser, code, fname) {
   const page = await browser.newPage()
   await page.goto('http://localhost:8080/edit.html')
-  await page.$eval('#text', function (el, value) { el.value = value }, code)
+  await page.evaluate((codeIn) => {
+    document.codemirrorEditor.setValue(codeIn)
+  }, code)
   const input = await page.$('#text')
   await input.type(' ')
   await page.waitForTimeout(2000)

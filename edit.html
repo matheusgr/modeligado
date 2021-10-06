@@ -82,6 +82,9 @@
                 theme: "eclipse"
             })
 
+            // making codemirror accessible to puppeteer
+            document.codemirrorEditor = codemirrorEditor;
+
             codemirrorEditor.setValue(loadExample())
             
             codemirrorEditor.on('change',  (e) => {
