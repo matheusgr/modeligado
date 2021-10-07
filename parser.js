@@ -380,7 +380,6 @@ class Parser {
       throw new ParseError(0, 'No text found.')
     }
 
-
     for (const line of arrayOfLines.map(x => extractor.removeComment(x.trim()))) {
       extractor.setLine(++lineNumber)
       state.setLine(lineNumber)
