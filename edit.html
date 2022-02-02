@@ -16,7 +16,7 @@
     <script src="https://cdn.jsdelivr.net/npm/gojs@2.1/release/go.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.5.0/jszip.min.js"></script>
     <script src= "https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.48.4/codemirror.min.js"></script>
-    
+
     <script type="module">
         import {init, create, ClickHistory} from "./gojs.js"
         import {parse, exportPng, exportSvg, exportTxt, exportJava} from "./modeligado.js"
@@ -34,7 +34,7 @@
         window.showTrace = function() {
             if (trace) {
                 document.getElementById("traceButton").textContent = "☐ Trace"
-                codemirrorEditor.getWrapperElement().style['display'] = "flex"
+                codemirrorEditor.getWrapperElement().style['display'] = ""
                 document.getElementById("trace").style['display'] = "none"
                 trace = false
             } else {
@@ -84,8 +84,37 @@
         window.exportTxt = () => {exportTxt(codemirrorEditor.getValue(), "uml.txt")}
         window.exportJava = () => {exportJava(codemirrorEditor.getValue(), 'project.zip')}
         window.exportSvg = () => {exportSvg(myDiagram, "uml.svg")}
+
         let clickHistory = new ClickHistory()
         window.clickHistory = clickHistory
+        clickHistory.subscribe(() => {
+                let data = ""
+                clickHistory.history.forEach((hist, i) =>  {
+                    const op = hist[0]
+                    const h = hist[1]
+                    let elem = h.className + "." + h.name
+                    if (op == "method") {
+                        if (h["name"] === h["className"]) { // constructor
+                            elem += "()"
+                        } else { // method
+                            elem += "("
+                            if (h.hasOwnProperty("parameters")) {
+                                for (const p of h.parameters) {
+                                    elem += p.name + ": " + p.name + ", "
+                                }
+                                elem = elem.substring(0, elem.length - 2)
+                            }
+                            elem += ")"
+                        }
+                    }
+                    data += "<div class=\"elem\">" +
+                        "<span onClick=\"clickHistory.moveUp(" + i + ")\">UP</span> " +
+                        "<span onClick=\"clickHistory.moveDown(" + i + ")\">DOWN</span> " +
+                        "<span onClick=\"clickHistory.delete(" + i + ")\">DELETE</span> " +
+                        "<span>" + elem.replace(">", "&gt;").replace("<", "&lt;") + "</span>" + "</div>"
+                })
+                document.getElementById("trace").innerHTML  = data
+            })
 
         window.initDiv = function() {
             errorDiv = document.getElementById("error")
@@ -121,35 +150,9 @@
 
             window.initDiv = undefined
             window.load()
-            codemirrorEditor.refresh()
-            clickHistory.subscribe(() => {
-                let data = ""
-                clickHistory.history.forEach((hist, i) =>  {
-                    const op = hist[0]
-                    const h = hist[1]
-                    let elem = h.className + "." + h.name
-                    if (op == "method") {
-                        if (h["name"] === h["className"]) { // constructor
-                            elem += "()"
-                        } else { // method
-                            elem += "("
-                            if (h.hasOwnProperty("parameters")) {
-                                for (const p of h.parameters) {
-                                    elem += p.name + ": " + p.name + ", "
-                                }
-                                elem = elem.substring(0, elem.length - 2)
-                            }
-                            elem += ")"
-                        }
-                    }
-                    data += "<div class=\"elem\">" +
-                        "<span onClick=\"clickHistory.moveUp(" + i + ")\">UP</span> " +
-                        "<span onClick=\"clickHistory.moveDown(" + i + ")\">DOWN</span> " +
-                        "<span onClick=\"clickHistory.delete(" + i + ")\">DELETE</span> " +
-                        "<span>" + elem.replace(">", "&gt;").replace("<", "&lt;") + "</span>" + "</div>"
-                })
-                document.getElementById("trace").innerHTML  = data
-            })
+            setTimeout(() => {
+                codemirrorEditor.refresh()
+            }, 1000)
         }
     </script>
 </head>
@@ -179,8 +182,8 @@
                 </nav>
             </header>
             <main class="flex-row-content">
-                <textarea placeholder="Text UML here..." id="text" class="code flex-column col-1"></textarea>
-                <div hidden=true class="col-1 trace" id="trace"></div>
+                <textarea placeholder="Text UML here..." id="text" class="code col-1"></textarea>
+                <div hidden class="col-1 trace" id="trace"></div>
                 <div id="myDiagramDiv" class="flex-column col-2"></div>
             </main>
         </div>
