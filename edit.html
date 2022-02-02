@@ -121,6 +121,7 @@
 
             window.initDiv = undefined
             window.load()
+            codemirrorEditor.refresh()
             clickHistory.subscribe(() => {
                 let data = ""
                 clickHistory.history.forEach((hist, i) =>  {
