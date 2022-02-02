@@ -131,6 +131,19 @@ main {
     height: 70%;
  }
 
+ main .trace {
+    box-shadow: 1px 3px rgba(0, 0, 0, 0.24), 1px 2px rgba(0, 0, 0, 0.24);
+    outline-color: var(--background-header);
+    border-radius: 4px;
+    overflow: hidden;
+    overflow-y: auto;
+    display: hidden;
+    flex-flow: column;
+
+    background-color: #FFF;
+    margin: 0.8rem;     
+ }
+
 main .CodeMirror {
     display: flex;
     flex-direction: column;

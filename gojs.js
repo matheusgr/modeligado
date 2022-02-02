@@ -11,24 +11,51 @@ class ClickHistory {
     this.callbacks.push(callback)
   }
 
+  moveUp (pos) {
+    if (pos === 0) {
+      return
+    }
+    this.history.splice(pos - 1, 0, ...this.history.splice(pos, 1))
+    for (const cb of this.callbacks) {
+      cb()
+    }
+  }
+
+  moveDown (pos) {
+    if (pos === this.history.length - 1) {
+      return
+    }
+    this.history.splice(pos + 1, 0, ...this.history.splice(pos, 1))
+    for (const cb of this.callbacks) {
+      cb()
+    }
+  }
+
+  delete (pos) {
+    this.history.splice(pos, 1)
+    for (const cb of this.callbacks) {
+      cb()
+    }
+  }
+
   /*
   data = data object
   obj = TextBlock to highlight
   */
-  addHistory (data, obj) {
-    for (const cb of this.callbacks) {
-      cb(data, obj)
-    }
-    this.history.unshift([data, obj])
-    this.highlights.unshift([data, obj])
+  addHistory (op, data, obj) {
+    this.history.push([op, data, obj])
+    this.highlights.unshift([op, data, obj])
     if (this.highlights.length === 4) {
-      this.highlights.pop()[1].stroke = 'black'
+      this.highlights.pop()[2].stroke = 'black'
     }
     let i = 250
     for (const e of this.highlights) {
       const c = 'rgb(' + i + ', ' + (250 - (i / 2)) + ', ' + (250 - i) + ')'
-      e[1].stroke = c
+      e[2].stroke = c
       i -= 75
+    }
+    for (const cb of this.callbacks) {
+      cb()
     }
   }
 }
@@ -62,13 +89,12 @@ function init (div, clickHistory) {
     }
   }
 
-  function actionDownTemplate (level) {
+  function actionDownTemplate (op, level) {
     return (e, btn) => {
       if (!btn.isEnabledObject()) return
       if (e.button !== 0) return
-      console.log(btn.data) // Data clicked
       const text = btn.elt(level) // TextBlockLevel for this entity
-      clickHistory.addHistory(btn.data, text)
+      clickHistory.addHistory(op, btn.data, text)
     }
   }
 
@@ -99,7 +125,7 @@ function init (div, clickHistory) {
           new go.Binding('text', 'default', function (s) { return s ? ' = ' + s : '' }))
       )
 
-  propertyTemplate.actionDown = actionDownTemplate(1)
+  propertyTemplate.actionDown = actionDownTemplate('attr', 1)
 
   // the item template for methods
   const methodTemplate =
@@ -136,7 +162,7 @@ function init (div, clickHistory) {
           new go.Binding('text', 'type').makeTwoWay())
       )
 
-  methodTemplate.actionDown = actionDownTemplate(1)
+  methodTemplate.actionDown = actionDownTemplate('method', 1)
 
   // this simple template does not have any buttons to permit adding or
   // removing properties or methods, but it could!

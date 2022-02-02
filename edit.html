@@ -29,6 +29,21 @@
         let errorDiv = null
         let textArea = null
         let codemirrorEditor = null
+        let trace = false
+
+        window.showTrace = function() {
+            if (trace) {
+                document.getElementById("traceButton").textContent = "☐ Trace"
+                codemirrorEditor.getWrapperElement().style['display'] = "flex"
+                document.getElementById("trace").style['display'] = "none"
+                trace = false
+            } else {
+                document.getElementById("traceButton").textContent = "☑ Trace"
+                codemirrorEditor.getWrapperElement().style['display'] = "none"
+                document.getElementById("trace").style['display'] = "flex"
+                trace = true
+            }
+        }
 
         window.enableAutoUpdate = function() {
             if (autoUpdate) {
@@ -70,6 +85,7 @@
         window.exportJava = () => {exportJava(codemirrorEditor.getValue(), 'project.zip')}
         window.exportSvg = () => {exportSvg(myDiagram, "uml.svg")}
         let clickHistory = new ClickHistory()
+        window.clickHistory = clickHistory
 
         window.initDiv = function() {
             errorDiv = document.getElementById("error")
@@ -105,6 +121,34 @@
 
             window.initDiv = undefined
             window.load()
+            clickHistory.subscribe(() => {
+                let data = ""
+                clickHistory.history.forEach((hist, i) =>  {
+                    const op = hist[0]
+                    const h = hist[1]
+                    let elem = h.className + "." + h.name
+                    if (op == "method") {
+                        if (h["name"] === h["className"]) { // constructor
+                            elem += "()"
+                        } else { // method
+                            elem += "("
+                            if (h.hasOwnProperty("parameters")) {
+                                for (const p of h.parameters) {
+                                    elem += p.name + ": " + p.name + ", "
+                                }
+                                elem = elem.substring(0, elem.length - 2)
+                            }
+                            elem += ")"
+                        }
+                    }
+                    data += "<div class=\"elem\">" +
+                        "<span onClick=\"clickHistory.moveUp(" + i + ")\">UP</span> " +
+                        "<span onClick=\"clickHistory.moveDown(" + i + ")\">DOWN</span> " +
+                        "<span onClick=\"clickHistory.delete(" + i + ")\">DELETE</span> " +
+                        "<span>" + elem.replace(">", "&gt;").replace("<", "&lt;") + "</span>" + "</div>"
+                })
+                document.getElementById("trace").innerHTML  = data
+            })
         }
     </script>
 </head>
@@ -119,6 +163,7 @@
                 <nav>
                     <div class="menu">
                         <button class="nav-button" id="autoUpdateButton" onClick="enableAutoUpdate()">☑ Auto Update</button>
+                        <button class="nav-button" id="traceButton" onClick="showTrace()">☐ Trace</button>
                         <span id="error" class="error">No errors detected...</span>    
                     </div>
                 
@@ -134,6 +179,7 @@
             </header>
             <main class="flex-row-content">
                 <textarea placeholder="Text UML here..." id="text" class="code flex-column col-1"></textarea>
+                <div hidden=true class="col-1 trace" id="trace"></div>
                 <div id="myDiagramDiv" class="flex-column col-2"></div>
             </main>
         </div>
