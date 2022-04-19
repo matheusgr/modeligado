@@ -1,10 +1,8 @@
 import http from 'http'
 import serveHandler from 'serve-handler'
 import puppeteer from 'puppeteer'
-import pkg4 from 'csv'
+import { parse } from 'csv'
 import { createReadStream } from 'fs'
-
-const csv = pkg4
 
 async function createUML (browser, code, fname) {
   const page = await browser.newPage()
@@ -27,7 +25,7 @@ async function createUML (browser, code, fname) {
 const processFile = async () => {
   const records = []
   const parser = createReadStream('./projeto.csv')
-    .pipe(csv.parse({
+    .pipe(parse({
       from_line: 2
     }))
 
