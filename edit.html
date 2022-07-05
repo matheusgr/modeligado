@@ -18,18 +18,31 @@
     <script src= "https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.48.4/codemirror.min.js"></script>
 
     <script type="module">
-        import {init, create, ClickHistory} from "./gojs.js"
-        import {parse, exportPng, exportSvg, exportTxt, exportJava} from "./modeligado.js"
-        import {clickControl} from "./flow.js"
-        import {load, loadExample, save} from "./modeligado_storage.js"
+        import { init, create, ClickHistory } from "./gojs.js"
+        import { init as initSequence, load as createSequence } from "./sequence_diagram.js"
+        import { parse, exportPng, exportSvg, exportTxt, exportJava } from "./modeligado.js"
+        import { clickControl } from "./flow.js"
+        import { load, loadExample, save } from "./modeligado_storage.js"
+
+        const sequenceGraph = {
+            "class": "go.GraphLinksModel",
+            "nodeDataArray": [
+                { "key": "Main", "text": "Main", "isGroup": true, "loc": "0 0", "duration": 9 },
+            ],
+            "linkDataArray": [],
+        }
 
         let autoUpdate = true
         let myDiagram = null
+        let sequenceDiagram = null
         let timeout = null
         let errorDiv = null
         let textArea = null
         let codemirrorEditor = null
         let trace = false
+        let pos = 150
+        let time = 0
+        let keys = ["Main"]
 
         window.showTrace = function() {
             if (trace) {
@@ -41,6 +54,7 @@
                 document.getElementById("traceButton").textContent = "☑ Trace"
                 codemirrorEditor.getWrapperElement().style['display'] = "none"
                 document.getElementById("trace").style['display'] = "flex"
+                document.getElementById("trace").style['flex-direction'] = "column"
                 trace = true
             }
         }
@@ -88,33 +102,45 @@
         let clickHistory = new ClickHistory()
         window.clickHistory = clickHistory
         clickHistory.subscribe(() => {
-                let data = ""
-                clickHistory.history.forEach((hist, i) =>  {
-                    const op = hist[0]
-                    const h = hist[1]
-                    let elem = h.className + "." + h.name
-                    if (op == "method") {
-                        if (h["name"] === h["className"]) { // constructor
-                            elem += "()"
-                        } else { // method
-                            elem += "("
-                            if (h.hasOwnProperty("parameters")) {
-                                for (const p of h.parameters) {
-                                    elem += p.name + ": " + p.name + ", "
-                                }
-                                elem = elem.substring(0, elem.length - 2)
+            let data = ""
+            const origin = clickHistory.history.length > 1 ? clickHistory.history.at(-2)[1].className : keys[0]
+            const destination = clickHistory.history.at(-1)[1]
+            if(!keys.includes(destination.className)) {
+                sequenceGraph.nodeDataArray.push({ "key": destination.className, "text": destination.className, "isGroup": true, "loc": `${pos} 0`, "duration": 9 })
+                keys.push(destination.className)
+                pos = pos + 150
+            }
+
+            sequenceGraph.linkDataArray.push({ "from": origin, "to": destination.className, "text": destination.name, "time": time})
+            time = time + 1
+
+            clickHistory.history.forEach((hist, i) =>  {
+                const op = hist[0]
+                const h = hist[1]
+                let elem = h.className + "." + h.name
+                if (op == "method") {
+                    if (h["name"] === h["className"]) { // constructor
+                        elem += "()"
+                    } else { // method
+                        elem += "("
+                        if (h.hasOwnProperty("parameters")) {
+                            for (const p of h.parameters) {
+                                elem += p.name + ": " + p.name + ", "
                             }
-                            elem += ")"
+                            elem = elem.substring(0, elem.length - 2)
                         }
+                        elem += ")"
                     }
-                    data += "<div class=\"elem\">" +
-                        "<span onClick=\"clickHistory.moveUp(" + i + ")\">UP</span> " +
-                        "<span onClick=\"clickHistory.moveDown(" + i + ")\">DOWN</span> " +
-                        "<span onClick=\"clickHistory.delete(" + i + ")\">DELETE</span> " +
-                        "<span>" + elem.replace(">", "&gt;").replace("<", "&lt;") + "</span>" + "</div>"
-                })
-                document.getElementById("trace").innerHTML  = data
+                }
+                data += "<div class=\"elem\">" +
+                    "<span onClick=\"clickHistory.moveUp(" + i + ")\">UP</span> " +
+                    "<span onClick=\"clickHistory.moveDown(" + i + ")\">DOWN</span> " +
+                    "<span onClick=\"clickHistory.delete(" + i + ")\">DELETE</span> " +
+                    "<span>" + elem.replace(">", "&gt;").replace("<", "&lt;") + "</span>" + "</div>"
             })
+            document.getElementById("traceInput").innerHTML = data
+            sequenceDiagram = createSequence(sequenceGraph)
+        })
 
         window.initDiv = function() {
             errorDiv = document.getElementById("error")
@@ -146,6 +172,7 @@
             })
 
             myDiagram = init(document.getElementById("myDiagramDiv"), clickHistory)
+            sequenceDiagram = initSequence(sequenceGraph)
             clickControl(document.getElementById("flowDiv"), clickHistory)
 
             window.initDiv = undefined
@@ -183,7 +210,10 @@
             </header>
             <main class="flex-row-content">
                 <textarea placeholder="Text UML here..." id="text" class="code col-1"></textarea>
-                <div hidden class="col-1 trace" id="trace"></div>
+                <div hidden class="col-1" style="margin: 0.8rem;" id="trace">
+                    <div class="row-1 trace" style="margin-bottom: 0.5rem;" id="traceInput"></div>
+                    <div class="row-2 trace" id="sequenceDiagramDiv" class="flex-column col-2"></div>
+                </div>
                 <div id="myDiagramDiv" class="flex-column col-2"></div>
             </main>
         </div>
