@@ -40,9 +40,6 @@
         let textArea = null
         let codemirrorEditor = null
         let trace = false
-        let pos = 150
-        let time = 0
-        let keys = ["Main"]
 
         window.showTrace = function() {
             if (trace) {
@@ -103,16 +100,32 @@
         window.clickHistory = clickHistory
         clickHistory.subscribe(() => {
             let data = ""
-            const origin = clickHistory.history.length > 1 ? clickHistory.history.at(-2)[1].className : keys[0]
-            const destination = clickHistory.history.at(-1)[1]
-            if(!keys.includes(destination.className)) {
-                sequenceGraph.nodeDataArray.push({ "key": destination.className, "text": destination.className, "isGroup": true, "loc": `${pos} 0`, "duration": 9 })
-                keys.push(destination.className)
-                pos = pos + 150
+            let pos = 150
+            let time = 0
+            let keys = ["Main"]
+            const sequenceGraph = {
+                "class": "go.GraphLinksModel",
+                "nodeDataArray": [
+                    { "key": "Main", "text": "Main", "isGroup": true, "loc": "0 0", "duration": 9 },
+                ],
+                "linkDataArray": [],
             }
 
-            sequenceGraph.linkDataArray.push({ "from": origin, "to": destination.className, "text": destination.name, "time": time})
-            time = time + 1
+            clickHistory.history.forEach((elem) => {
+                if(!keys.includes(elem[1].className)) {
+                    sequenceGraph.nodeDataArray.push({ "key": elem[1].className, "text": elem[1].className, "isGroup": true, "loc": `${pos} 0`, "duration": 9 })
+                    keys.push(elem[1].className)
+                    pos = pos + 150
+                }
+            })
+
+            for(let i = 0; i < clickHistory.history.length; i++) {
+                const origin = i > 0 ? clickHistory.history.at(i - 1)[1].className : keys[0]
+                const destination = clickHistory.history.at(i)[1]
+
+                sequenceGraph.linkDataArray.push({ "from": origin, "to": destination.className, "text": destination.name, "time": time})
+                time = time + 1
+            }
 
             clickHistory.history.forEach((hist, i) =>  {
                 const op = hist[0]
