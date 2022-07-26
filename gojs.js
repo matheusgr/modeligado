@@ -5,6 +5,7 @@ class ClickHistory {
     this.history = []
     this.highlights = []
     this.callbacks = []
+    this.returneds = []
   }
 
   subscribe (callback) {
@@ -54,6 +55,42 @@ class ClickHistory {
       e[2].stroke = c
       i -= 75
     }
+    for (const cb of this.callbacks) {
+      cb()
+    }
+  }
+
+  findDestination(i) {
+    for(let j = i - 1; j >= 0; j--) {
+      if(this.history.at(j)[1].type !== 'Retorno' && !this.returneds.includes(j)) {
+        return j
+      }
+    }
+
+    return -1
+  }
+
+  returnFunction(i) {
+    const postDestination = this.findDestination(i)
+
+    this.history.push(
+      [
+        this.history[i][0],
+        {
+          ...this.history[i][1],
+          type: 'Retorno',
+          name: 'retorno',
+          parameters: [{
+            origin: this.history.at(i)[1].className,
+            destination: postDestination >= 0 ? this.history.at(postDestination)[1].className : 'Main',
+          }]
+        },
+        this.history[2],
+      ]
+    )
+
+    this.returneds.push(i)
+
     for (const cb of this.callbacks) {
       cb()
     }
