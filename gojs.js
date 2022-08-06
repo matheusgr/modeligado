@@ -33,6 +33,10 @@ class ClickHistory {
   }
 
   delete (pos) {
+    if (this.returneds.includes(pos)) {
+      this.returneds.splice(this.returneds.indexOf(pos), 1)
+    }
+
     this.history.splice(pos, 1)
     for (const cb of this.callbacks) {
       cb()
