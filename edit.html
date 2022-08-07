@@ -180,7 +180,7 @@
           "<span onClick=\"clickHistory.delete(" + i + ")\">DELETE</span> "
         
         if (hist[0] === 'method' && !isReturn && !clickHistory.returneds.includes(i))
-          data += "<span onClick=\"clickHistory.returnFunction(" + i + ")\">RETORNAR</span>"
+          data += "<span onClick=\"clickHistory.returnFunction(" + i + ")\">RETORNAR</span> "
 
         data += "<span>" + elem.replace(">", "&gt;").replace("<", "&lt;") + "</span>" + "</div>"
       })
