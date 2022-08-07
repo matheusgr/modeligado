@@ -169,13 +169,14 @@
             elem += ")"
           }
         }
+        console.log(hist[0])
 
         data += "<div class=\"elem\">" +
           "<span onClick=\"clickHistory.moveUp(" + i + ")\">UP</span> " +
           "<span onClick=\"clickHistory.moveDown(" + i + ")\">DOWN</span> " +
           "<span onClick=\"clickHistory.delete(" + i + ")\">DELETE</span> "
         
-        if (!isReturn && !clickHistory.returneds.includes(i))
+        if (hist[0] === 'method' && !isReturn && !clickHistory.returneds.includes(i) && hist[1].type && hist[1].type !== 'void')
           data += "<span onClick=\"clickHistory.returnFunction(" + i + ")\">RETORNAR</span>"
 
         data += "<span>" + elem.replace(">", "&gt;").replace("<", "&lt;") + "</span>" + "</div>"
