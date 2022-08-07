@@ -140,7 +140,11 @@
         sequenceGraph.linkDataArray.push({
           "from": origin,
           "to": isReturn
-            ? clickHistory.history[i][1].parameters[0].destination
+            ? (
+              clickHistory.history[i][1].parameters[0].destination > -1
+              ? clickHistory.history.at(clickHistory.history[i][1].parameters[0].destination)[1].className
+              : 'Main'
+            )
             : (destination ? destination.className : 'Main'),
           "text": isReturn ? 'Retorno' : destination.name,
           "time": time
@@ -169,7 +173,6 @@
             elem += ")"
           }
         }
-        console.log(hist[0])
 
         data += "<div class=\"elem\">" +
           "<span onClick=\"clickHistory.moveUp(" + i + ")\">UP</span> " +

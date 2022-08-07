@@ -32,12 +32,39 @@ class ClickHistory {
     }
   }
 
+  updateReturns(pos) {
+    this.returneds = this.returneds.map(returned => returned > pos ? returned - 1 : returned)
+
+    this.history = this.history.map(h => {
+      if (h[1].type === 'Retorno' && h[1].parameters[0].destination >= pos) {
+        return [
+          h[0],
+          {
+            ...h[1],
+            parameters: [{
+              origin: h[1].parameters[0].origin,
+              destination: h[1].parameters[0].destination - 1,
+            }]
+          },
+          h[2],
+        ]
+      }
+      return h
+    })
+  }
+
   delete (pos) {
     if (this.returneds.includes(pos)) {
-      this.returneds.splice(this.returneds.indexOf(pos), 1)
+      const posReturn = this.returneds.indexOf(pos)
+      this.returneds.splice(posReturn, 1)
+    } else if (this.history[pos][1].type === 'Retorno') {
+      const posReturn = this.returneds.indexOf(this.history[pos][1].parameters[0].destination)
+      this.returneds.splice(posReturn, 1)
     }
 
     this.history.splice(pos, 1)
+    this.updateReturns(pos)
+
     for (const cb of this.callbacks) {
       cb()
     }
@@ -75,7 +102,7 @@ class ClickHistory {
   }
 
   returnFunction(i) {
-    const postDestination = this.findDestination(i)
+    const posDestination = this.findDestination(i)
 
     this.history.push(
       [
@@ -86,10 +113,10 @@ class ClickHistory {
           name: 'retorno',
           parameters: [{
             origin: this.history.at(i)[1].className,
-            destination: postDestination >= 0 ? this.history.at(postDestination)[1].className : 'Main',
+            destination: posDestination,
           }]
         },
-        this.history[2],
+        this.history[i][2],
       ]
     )
 
