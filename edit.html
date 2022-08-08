@@ -132,7 +132,11 @@
           ? clickHistory.history[i][1].parameters[0].origin
           : (i > 0
             ? (clickHistory.history.at(i - 1)[1].type === 'Retorno'
-              ? (clickHistory.history.at(i - 1)[1].parameters[0].destination ?? 'Main')
+              ? (
+                clickHistory.history[i - 1][1].parameters[0].destination > -1
+                ? clickHistory.history.at(clickHistory.history[i - 1][1].parameters[0].destination)[1].className
+                : 'Main'
+              )
               : clickHistory.history.at(i - 1)[1].className
             ) : keys[0])
         const destination = clickHistory.history.at(i)[1]
@@ -175,12 +179,12 @@
         }
 
         data += "<div class=\"elem\">" +
-          "<span onClick=\"clickHistory.moveUp(" + i + ")\">UP</span> " +
-          "<span onClick=\"clickHistory.moveDown(" + i + ")\">DOWN</span> " +
-          "<span onClick=\"clickHistory.delete(" + i + ")\">DELETE</span> "
+          "<button style=\"background-color: #E9E9E9; border-radius: 6px; padding: 4px;\" onClick=\"clickHistory.moveUp(" + i + ")\">UP</button> " +
+          "<button style=\"background-color: #E9E9E9; border-radius: 6px; padding: 4px;\" onClick=\"clickHistory.moveDown(" + i + ")\">DOWN</button> " +
+          "<button style=\"background-color: #E9E9E9; border-radius: 6px; padding: 4px;\" onClick=\"clickHistory.delete(" + i + ")\">DELETE</button> "
         
         if (hist[0] === 'method' && !isReturn && !clickHistory.returneds.includes(i))
-          data += "<span onClick=\"clickHistory.returnFunction(" + i + ")\">RETORNAR</span> "
+          data += "<button style=\"background-color: #E9E9E9; border-radius: 6px; padding: 4px;\" onClick=\"clickHistory.returnFunction(" + i + ")\">RETORNAR</button> "
 
         data += "<span>" + elem.replace(">", "&gt;").replace("<", "&lt;") + "</span>" + "</div>"
       })
