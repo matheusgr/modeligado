@@ -5,6 +5,7 @@ class ClickHistory {
     this.history = []
     this.highlights = []
     this.callbacks = []
+    this.returneds = []
   }
 
   subscribe (callback) {
@@ -31,8 +32,39 @@ class ClickHistory {
     }
   }
 
+  updateReturns(pos) {
+    this.returneds = this.returneds.map(returned => returned > pos ? returned - 1 : returned)
+
+    this.history = this.history.map(h => {
+      if (h[1].type === 'Retorno' && h[1].parameters[0].destination >= pos) {
+        return [
+          h[0],
+          {
+            ...h[1],
+            parameters: [{
+              origin: h[1].parameters[0].origin,
+              destination: h[1].parameters[0].destination - 1,
+            }]
+          },
+          h[2],
+        ]
+      }
+      return h
+    })
+  }
+
   delete (pos) {
+    if (this.returneds.includes(pos)) {
+      const posReturn = this.returneds.indexOf(pos)
+      this.returneds.splice(posReturn, 1)
+    } else if (this.history[pos][1].type === 'Retorno') {
+      const posReturn = this.returneds.indexOf(this.history[pos][1].parameters[0].destination)
+      this.returneds.splice(posReturn, 1)
+    }
+
     this.history.splice(pos, 1)
+    this.updateReturns(pos)
+
     for (const cb of this.callbacks) {
       cb()
     }
@@ -54,6 +86,42 @@ class ClickHistory {
       e[2].stroke = c
       i -= 75
     }
+    for (const cb of this.callbacks) {
+      cb()
+    }
+  }
+
+  findDestination(i) {
+    for(let j = i - 1; j >= 0; j--) {
+      if(this.history.at(j)[1].type !== 'Retorno' && !this.returneds.includes(j)) {
+        return j
+      }
+    }
+
+    return -1
+  }
+
+  returnFunction(i) {
+    const posDestination = this.findDestination(i)
+
+    this.history.push(
+      [
+        this.history[i][0],
+        {
+          ...this.history[i][1],
+          type: 'Retorno',
+          name: 'retorno',
+          parameters: [{
+            origin: this.history.at(i)[1].className,
+            destination: posDestination,
+          }]
+        },
+        this.history[i][2],
+      ]
+    )
+
+    this.returneds.push(i)
+
     for (const cb of this.callbacks) {
       cb()
     }
