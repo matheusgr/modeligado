@@ -126,14 +126,14 @@ class Extractor {
 
   _convertVisibility (vis) {
     if (!Object.prototype.hasOwnProperty.call(this.conv, vis)) {
-      throw new ParseError(this.lineNumber, 'Unknow visibility: ' + vis)
+      throw new ParseError(this.lineNumber, 'Unknown visibility: ' + vis)
     }
     return this.conv[vis]
   }
 
   _prepareRelation (relation, types) {
     if (!Object.prototype.hasOwnProperty.call(this.relations, relation)) {
-      throw new ParseError(this.lineNumber, 'Unknow relation: ' + relation)
+      throw new ParseError(this.lineNumber, 'Unknown relation: ' + relation)
     }
     return { relation: this.relations[relation][0], types: types, inverse: this.relations[relation][1] }
   }
@@ -155,7 +155,7 @@ class Extractor {
       if (arr[1] in this.modifier) {
         arr[1] = this.modifier[arr[1]]
       } else {
-        throw new ParseError(this.lineNumber, 'Unknow attr modifier ' + line)
+        throw new ParseError(this.lineNumber, 'Unknown attr modifier ' + line)
       }
     } else {
       arr.splice(1, 0, '') // no modifier
@@ -165,19 +165,19 @@ class Extractor {
 
   extractAttr (line) {
     if (line.indexOf('(') !== -1 || line.indexOf(')') !== -1) {
-      throw new ParseError(this.lineNumber, 'Unknow attr format ' + line)
+      throw new ParseError(this.lineNumber, 'Unknown attr format ' + line)
     }
     const split = this._correctModifier(line)
 
     if (split.length !== 4) {
-      throw new ParseError(this.lineNumber, 'Unknow attr format ' + line)
+      throw new ParseError(this.lineNumber, 'Unknown attr format ' + line)
     }
     const visibility = this._convertVisibility(split[0])
     const scope = split[1]
     const name = split[2]
     const type = split[3]
     if (!name || !type) {
-      throw new ParseError(this.lineNumber, 'Unknow attr format ' + line)
+      throw new ParseError(this.lineNumber, 'Unknown attr format ' + line)
     }
     return { name: name, scope: scope, type: type, visibility: visibility }
   }
@@ -280,12 +280,12 @@ class Extractor {
     for (const param of this._parseCommaToBar(params).split('|').map(x => x.trim())) {
       const aval = param.split(':').map(x => x.trim())
       if (aval.length !== 2) {
-        throw new ParseError(this.lineNumber, 'Unknow param format ' + params)
+        throw new ParseError(this.lineNumber, 'Unknown param format ' + params)
       }
       const name = aval[0]
       const type = aval[1]
       if (!name || !type) {
-        throw new ParseError(this.lineNumber, 'Unknow param format ' + params)
+        throw new ParseError(this.lineNumber, 'Unknown param format ' + params)
       }
       resultParams.push({ name: name, type: type })
     }
@@ -321,14 +321,14 @@ class Extractor {
     result.name = signature.substring(0, signature.indexOf('('))
 
     if (!result.name) {
-      throw new ParseError(this.lineNumber, 'Unknow method signature ' + line)
+      throw new ParseError(this.lineNumber, 'Unknown method signature ' + line)
     }
 
     if (signature.indexOf('(') + 1 < signature.indexOf(')')) {
       const paramsStr = signature.substring(signature.indexOf('(') + 1, signature.indexOf(')'))
       result.parameters = this.extractParameters(paramsStr)
     } else if (signature.indexOf('(') > signature.indexOf(')')) {
-      throw new ParseError(this.lineNumber, 'Unknow method signature ' + line)
+      throw new ParseError(this.lineNumber, 'Unknown method signature ' + line)
     }
 
     this._getReturnType(state, signature, result, line)
